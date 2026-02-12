@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { Artifact } from "@/lib/types/artifacts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Eye, Download, FileText, FileSpreadsheet } from "lucide-react";
+import { Eye, Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 
 interface ArtifactCardProps {
   artifact: Artifact;
@@ -21,6 +22,46 @@ const STATUS_STYLES: Record<Artifact["status"], { label: string; variant: "defau
 export function ArtifactCard({ artifact, onPreview }: ArtifactCardProps) {
   const statusInfo = STATUS_STYLES[artifact.status];
   const Icon = artifact.format === "xlsx" ? FileSpreadsheet : FileText;
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch("/api/generate-artifact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: artifact.type,
+          data: artifact.data,
+          projectName: artifact.data.projectName ?? "Project",
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Download failed");
+      }
+
+      // Get the filename from the Content-Disposition header, or build a default
+      const disposition = res.headers.get("Content-Disposition");
+      const match = disposition?.match(/filename="(.+)"/);
+      const fileName = match?.[1] ?? `${artifact.type}.docx`;
+
+      // Create a download link from the response blob
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Card className="transition-colors hover:bg-accent/50">
@@ -56,11 +97,15 @@ export function ArtifactCard({ artifact, onPreview }: ArtifactCardProps) {
           variant="outline"
           size="sm"
           className="h-7 flex-1 text-xs"
-          disabled
-          title="Download will be enabled in Phase 4"
+          onClick={handleDownload}
+          disabled={downloading || artifact.status === "generating"}
         >
-          <Download className="mr-1 h-3 w-3" />
-          Download
+          {downloading ? (
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+          ) : (
+            <Download className="mr-1 h-3 w-3" />
+          )}
+          {downloading ? "..." : "Download"}
         </Button>
       </CardContent>
     </Card>
