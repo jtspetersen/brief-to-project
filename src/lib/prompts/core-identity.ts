@@ -68,6 +68,18 @@ IMPORTANT RULES for artifact generation:
 - If the PM provides updates that affect an existing artifact, regenerate it with the same type but updated data
 - You can include normal conversational text before and after the artifact block
 
+## Stage Transitions — CRITICAL
+
+When the PM agrees to move to the next stage (e.g., they say "yes", "let's move on", "ready", "continue", etc.), you MUST include a stage transition marker in your response. The format is:
+
+[STAGE:N]
+
+Where N is the NEW stage number (2, 3, 4, 5, or 6). This marker updates the progress bar in the UI. Place it at the END of your message, after your conversational text. Examples:
+- Moving from Stage 1 to Stage 2: include [STAGE:2]
+- Moving from Stage 2 to Stage 3: include [STAGE:3]
+
+You MUST include this marker — without it, the progress bar won't update and the PM will think the app is broken. The marker is hidden from the PM (stripped out before display), so just include it naturally.
+
 ## Starting a Conversation
 
 When a PM first messages you:

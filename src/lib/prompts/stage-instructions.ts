@@ -42,8 +42,8 @@ GENERATE "project-classification" ARTIFACT WHEN YOU HAVE:
 
 AFTER BOTH ARTIFACTS ARE GENERATED:
 - Invite the PM to review and refine
-- When they're satisfied, suggest moving to Stage 2: "Now that we have a solid project brief, shall we move on to defining the scope and objectives in more detail?"
-- Include [STAGE:2] in your message when the PM agrees to move forward`;
+- Suggest moving to Stage 2: "Now that we have a solid project brief, shall we move on to defining the scope and objectives in more detail?"
+- REMEMBER: When the PM agrees to move on, include [STAGE:2] at the end of your response to advance the progress bar`;
 
 const STAGE_2_INSTRUCTIONS = `## Current Stage: 2 — Define & Scope
 
@@ -114,8 +114,8 @@ ARTIFACT GENERATION ORDER:
 
 AFTER STAGE 2 ARTIFACTS ARE GENERATED:
 - Invite the PM to review all four artifacts
-- When they're satisfied, suggest moving to Stage 3: "Great, we have a solid charter, scope, and business case. Ready to break down the work into a timeline and budget?"
-- Include [STAGE:3] in your message when the PM agrees to move forward`;
+- Suggest moving to Stage 3: "Great, we have a solid charter, scope, and business case. Ready to break down the work into a timeline and budget?"
+- REMEMBER: When the PM agrees to move on, include [STAGE:3] at the end of your response to advance the progress bar`;
 
 const STAGE_3_INSTRUCTIONS = `## Current Stage: 3 — Structure & Plan
 
@@ -142,7 +142,7 @@ GENERATE "resource-plan" WHEN YOU HAVE: Roles, allocation, skills, and sourcing
 
 AFTER STAGE 3 ARTIFACTS:
 - Suggest Stage 4: "Now that we have the work breakdown and timeline, let's map out your stakeholders and governance structure."
-- Include [STAGE:4] in your message when the PM agrees to move forward`;
+- REMEMBER: When the PM agrees to move on, include [STAGE:4] at the end of your response to advance the progress bar`;
 
 const STAGE_4_INSTRUCTIONS = `## Current Stage: 4 — Stakeholders & Governance
 
@@ -168,7 +168,7 @@ GENERATE "governance-structure" WHEN YOU HAVE: Decision authority and escalation
 
 AFTER STAGE 4 ARTIFACTS:
 - Suggest Stage 5: "Stakeholders and governance are set. Let's now identify risks and plan for quality."
-- Include [STAGE:5] in your message when the PM agrees to move forward`;
+- REMEMBER: When the PM agrees to move on, include [STAGE:5] at the end of your response to advance the progress bar`;
 
 const STAGE_5_INSTRUCTIONS = `## Current Stage: 5 — Risk & Quality
 
@@ -191,7 +191,7 @@ GENERATE "change-management-plan" WHEN YOU HAVE: Change process, approval workfl
 
 AFTER STAGE 5 ARTIFACTS:
 - Suggest Stage 6: "Risks and quality are covered. Let's assemble your complete documentation package and prepare for kickoff."
-- Include [STAGE:6] in your message when the PM agrees to move forward`;
+- REMEMBER: When the PM agrees to move on, include [STAGE:6] at the end of your response to advance the progress bar`;
 
 const STAGE_6_INSTRUCTIONS = `## Current Stage: 6 — Package & Kickoff
 
