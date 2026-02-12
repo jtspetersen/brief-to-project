@@ -6,10 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "@/components/chat/message-bubble";
+import { useSession } from "@/hooks/use-session";
 import { Send, Loader2, AlertCircle } from "lucide-react";
 
 export function ChatPanel() {
-  const { messages, sendMessage, status, error } = useChat();
+  const { state } = useSession();
+  const { messages, sendMessage, status, error } = useChat({
+    body: { currentStage: state.currentStage },
+  });
   const [input, setInput] = useState("");
 
   const isLoading = status === "submitted" || status === "streaming";

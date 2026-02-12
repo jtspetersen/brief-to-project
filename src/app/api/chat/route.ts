@@ -1,9 +1,22 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText, type UIMessage } from "ai";
-import { SYSTEM_PROMPT } from "@/lib/prompts/core-identity";
+import { CORE_IDENTITY } from "@/lib/prompts/core-identity";
+import { KNOWLEDGE_BASE } from "@/lib/prompts/knowledge-base";
+import { getStageInstructions } from "@/lib/prompts/stage-instructions";
+import { ARTIFACT_SCHEMAS } from "@/lib/prompts/artifact-schemas";
+import type { StageNumber } from "@/lib/types/stages";
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, currentStage = 1 }: { messages: UIMessage[]; currentStage?: StageNumber } =
+    await req.json();
+
+  // Assemble the 4-layer system prompt
+  const systemPrompt = [
+    CORE_IDENTITY,
+    KNOWLEDGE_BASE,
+    getStageInstructions(currentStage),
+    ARTIFACT_SCHEMAS,
+  ].join("\n\n---\n\n");
 
   // Convert UIMessage (parts-based) to the format streamText expects
   const modelMessages = messages.map((msg) => ({
@@ -16,7 +29,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic("claude-sonnet-4-5-20250929"),
-    system: SYSTEM_PROMPT,
+    system: systemPrompt,
     messages: modelMessages,
   });
 
