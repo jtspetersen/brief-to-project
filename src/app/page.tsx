@@ -1,5 +1,10 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { PasswordGate } from "@/components/auth/password-gate";
 
 export default function Home() {
-  return <AppShell />;
+  return (
+    <PasswordGate>
+      <AppShell />
+    </PasswordGate>
+  );
 }
