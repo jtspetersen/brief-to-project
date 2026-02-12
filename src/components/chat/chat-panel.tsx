@@ -7,14 +7,20 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "@/components/chat/message-bubble";
 import { useSession } from "@/hooks/use-session";
+import {
+  parseMessageForArtifacts,
+  toArtifact,
+} from "@/lib/utils/artifact-parser";
 import { Send, Loader2, AlertCircle } from "lucide-react";
 
 export function ChatPanel() {
-  const { state } = useSession();
+  const { state, addArtifact, updateArtifact } = useSession();
   const { messages, sendMessage, status, error } = useChat({
     body: { currentStage: state.currentStage },
   });
   const [input, setInput] = useState("");
+  // Track which artifacts we've already processed so we don't add duplicates
+  const processedArtifactsRef = useRef<Set<string>>(new Set());
 
   const isLoading = status === "submitted" || status === "streaming";
 
@@ -23,6 +29,42 @@ export function ChatPanel() {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Detect artifacts in completed AI messages and add to session state
+  useEffect(() => {
+    if (status !== "ready") return;
+
+    for (const message of messages) {
+      if (message.role !== "assistant") continue;
+
+      const rawText = message.parts
+        .filter(
+          (p): p is { type: "text"; text: string } => p.type === "text"
+        )
+        .map((p) => p.text)
+        .join("");
+
+      const { artifacts } = parseMessageForArtifacts(rawText);
+
+      for (const parsed of artifacts) {
+        const key = `${parsed.type}-${message.id}`;
+        if (processedArtifactsRef.current.has(key)) continue;
+        processedArtifactsRef.current.add(key);
+
+        // Check if this artifact type already exists (it's an update)
+        const existing = state.artifacts.find((a) => a.type === parsed.type);
+        if (existing) {
+          updateArtifact(existing.id, {
+            data: parsed.data,
+            title: parsed.title,
+            status: "revised",
+          });
+        } else {
+          addArtifact(toArtifact(parsed));
+        }
+      }
+    }
+  }, [messages, status, state.artifacts, addArtifact, updateArtifact]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
