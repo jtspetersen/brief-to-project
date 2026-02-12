@@ -7,7 +7,10 @@
       "Bash(npx create-next-app:*)",
       "Bash(npx shadcn@latest init:*)",
       "Bash(npx shadcn@latest add:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ]
   }
 }

@@ -1,7 +1,13 @@
+"use client";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSession } from "@/hooks/use-session";
 import { FileText } from "lucide-react";
 
 export function ArtifactSidebar() {
+  const { state } = useSession();
+  const artifactCount = state.artifacts.length;
+
   return (
     <div className="flex h-full flex-col border-l">
       {/* Header */}
@@ -9,11 +15,11 @@ export function ArtifactSidebar() {
         <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
         <h2 className="text-lg font-semibold">Documents</h2>
         <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-          0
+          {artifactCount}
         </span>
       </div>
 
-      {/* Document list — empty state for now */}
+      {/* Document list — empty state for now, cards added in Phase 2 */}
       <ScrollArea className="flex-1 px-6 py-4">
         <div className="flex h-full items-center justify-center">
           <div className="text-center">

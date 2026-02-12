@@ -1,18 +1,13 @@
+"use client";
+
 import { Separator } from "@/components/ui/separator";
-
-const STAGES = [
-  { number: 1, label: "Discover" },
-  { number: 2, label: "Define" },
-  { number: 3, label: "Plan" },
-  { number: 4, label: "Govern" },
-  { number: 5, label: "Risk" },
-  { number: 6, label: "Package" },
-] as const;
-
-// Currently hardcoded to stage 1. Will be wired to session state later (Task 1.28).
-const currentStage = 1;
+import { useSession } from "@/hooks/use-session";
+import { STAGES } from "@/lib/types/stages";
 
 export function ProgressBar() {
+  const { state } = useSession();
+  const currentStage = state.currentStage;
+
   return (
     <div className="border-t bg-background px-6 py-3">
       <div className="mx-auto flex max-w-3xl items-center justify-between">
