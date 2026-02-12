@@ -5,7 +5,8 @@
       "Bash(npm --version:*)",
       "Bash(git --version:*)",
       "Bash(npx create-next-app:*)",
-      "Bash(npx shadcn@latest init:*)"
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npx shadcn@latest add:*)"
     ]
   }
 }
