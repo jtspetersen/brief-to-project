@@ -66,12 +66,19 @@ export function ChatPanel() {
         console.log("[Artifact Debug] Has ```artifact block:", rawText.includes("```artifact"));
       }
 
+      let highestArtifactStage = state.currentStage;
+
       for (const parsed of artifacts) {
         const key = `${parsed.type}-${message.id}`;
         if (processedArtifactsRef.current.has(key)) continue;
         processedArtifactsRef.current.add(key);
 
-        console.log("[Artifact Debug] Adding artifact:", parsed.type, parsed.title);
+        console.log("[Artifact Debug] Adding artifact:", parsed.type, parsed.title, "stage:", parsed.stage);
+
+        // Track the highest stage seen in artifacts
+        if (parsed.stage > highestArtifactStage) {
+          highestArtifactStage = parsed.stage;
+        }
 
         // Check if this artifact type already exists (it's an update)
         const existing = state.artifacts.find((a) => a.type === parsed.type);
@@ -86,12 +93,23 @@ export function ChatPanel() {
         }
       }
 
-      // Handle stage transitions
+      // Handle stage transitions — two methods:
+      // 1. Explicit [STAGE:N] marker from AI (primary)
       if (stageTransition) {
         const transitionKey = `stage-${stageTransition}-${message.id}`;
         if (!processedArtifactsRef.current.has(transitionKey)) {
           processedArtifactsRef.current.add(transitionKey);
+          console.log("[Stage Debug] Transition marker found:", stageTransition);
           setStage(stageTransition);
+        }
+      }
+      // 2. Auto-advance when artifacts from a later stage are generated (fallback)
+      if (highestArtifactStage > state.currentStage) {
+        const autoKey = `auto-stage-${highestArtifactStage}-${message.id}`;
+        if (!processedArtifactsRef.current.has(autoKey)) {
+          processedArtifactsRef.current.add(autoKey);
+          console.log("[Stage Debug] Auto-advancing to stage", highestArtifactStage, "based on artifact stage");
+          setStage(highestArtifactStage as 1 | 2 | 3 | 4 | 5 | 6);
         }
       }
     }

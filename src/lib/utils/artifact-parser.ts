@@ -19,8 +19,10 @@ export interface ParseResult {
   stageTransition: StageNumber | null;
 }
 
+// Match ```artifact blocks — also handles optional language tag variations
 const ARTIFACT_REGEX = /```artifact\s*\n([\s\S]*?)```/g;
-const STAGE_REGEX = /\[STAGE:(\d)\]/g;
+// Match [STAGE:N] — case-insensitive, allows spaces around the colon and number
+const STAGE_REGEX = /\[STAGE\s*:\s*(\d)\]/gi;
 
 /**
  * Parse a message for artifact blocks.
