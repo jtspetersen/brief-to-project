@@ -5,6 +5,7 @@ import { KNOWLEDGE_BASE } from "@/lib/prompts/knowledge-base";
 import { getStageInstructions } from "@/lib/prompts/stage-instructions";
 import { ARTIFACT_SCHEMAS } from "@/lib/prompts/artifact-schemas";
 import { checkRateLimit, getClientIp } from "@/lib/utils/rate-limiter";
+import { compressConversation } from "@/lib/utils/context-manager";
 import type { StageNumber } from "@/lib/types/stages";
 
 // Configurable via env var, defaults to 50 requests per IP per day
@@ -41,10 +42,13 @@ export async function POST(req: Request) {
       .join(""),
   }));
 
+  // Compress older stage conversations to manage context window
+  const compressedMessages = compressConversation(modelMessages, currentStage);
+
   const result = streamText({
     model: anthropic("claude-sonnet-4-5-20250929"),
     system: systemPrompt,
-    messages: modelMessages,
+    messages: compressedMessages,
   });
 
   return result.toUIMessageStreamResponse();
