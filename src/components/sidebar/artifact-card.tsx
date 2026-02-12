@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Artifact } from "@/lib/types/artifacts";
+import type { Artifact, ArtifactType } from "@/lib/types/artifacts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -19,47 +19,56 @@ const STATUS_STYLES: Record<Artifact["status"], { label: string; variant: "defau
   final: { label: "Final", variant: "default" },
 };
 
+/** Artifact types that have an xlsx alternative */
+const XLSX_TYPES: Set<ArtifactType> = new Set(["risk-register", "budget"]);
+
+async function downloadArtifact(
+  artifact: Artifact,
+  format: "docx" | "xlsx",
+) {
+  const res = await fetch("/api/generate-artifact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: artifact.type,
+      data: artifact.data,
+      projectName: artifact.data.projectName ?? "Project",
+      format,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Download failed");
+
+  const disposition = res.headers.get("Content-Disposition");
+  const match = disposition?.match(/filename="(.+)"/);
+  const fileName = match?.[1] ?? `${artifact.type}.${format}`;
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function ArtifactCard({ artifact, onPreview }: ArtifactCardProps) {
   const statusInfo = STATUS_STYLES[artifact.status];
-  const Icon = artifact.format === "xlsx" ? FileSpreadsheet : FileText;
-  const [downloading, setDownloading] = useState(false);
+  const hasXlsx = XLSX_TYPES.has(artifact.type);
+  const Icon = hasXlsx ? FileSpreadsheet : FileText;
+  const [downloading, setDownloading] = useState<"docx" | "xlsx" | null>(null);
+  const isDisabled = downloading !== null || artifact.status === "generating";
 
-  const handleDownload = async () => {
-    setDownloading(true);
+  const handleDownload = async (format: "docx" | "xlsx") => {
+    setDownloading(format);
     try {
-      const res = await fetch("/api/generate-artifact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: artifact.type,
-          data: artifact.data,
-          projectName: artifact.data.projectName ?? "Project",
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Download failed");
-      }
-
-      // Get the filename from the Content-Disposition header, or build a default
-      const disposition = res.headers.get("Content-Disposition");
-      const match = disposition?.match(/filename="(.+)"/);
-      const fileName = match?.[1] ?? `${artifact.type}.docx`;
-
-      // Create a download link from the response blob
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      await downloadArtifact(artifact, format);
     } catch (err) {
       console.error("Download error:", err);
     } finally {
-      setDownloading(false);
+      setDownloading(null);
     }
   };
 
@@ -97,16 +106,32 @@ export function ArtifactCard({ artifact, onPreview }: ArtifactCardProps) {
           variant="outline"
           size="sm"
           className="h-7 flex-1 text-xs"
-          onClick={handleDownload}
-          disabled={downloading || artifact.status === "generating"}
+          onClick={() => handleDownload("docx")}
+          disabled={isDisabled}
         >
-          {downloading ? (
+          {downloading === "docx" ? (
             <Loader2 className="mr-1 h-3 w-3 animate-spin" />
           ) : (
             <Download className="mr-1 h-3 w-3" />
           )}
-          {downloading ? "..." : "Download"}
+          .docx
         </Button>
+        {hasXlsx && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 flex-1 text-xs"
+            onClick={() => handleDownload("xlsx")}
+            disabled={isDisabled}
+          >
+            {downloading === "xlsx" ? (
+              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            ) : (
+              <Download className="mr-1 h-3 w-3" />
+            )}
+            .xlsx
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

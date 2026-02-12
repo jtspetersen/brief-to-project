@@ -26,12 +26,14 @@ import { generateChangeManagementPlan } from "./change-management-plan-generator
 import { generateSowPid } from "./sow-pid-generator";
 import { generateKickoffAgenda } from "./kickoff-agenda-generator";
 import { generateCompletenessReport } from "./completeness-report-generator";
+import { generateRiskRegisterXlsx } from "./risk-register-xlsx-generator";
+import { generateBudgetXlsx } from "./budget-xlsx-generator";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GeneratorFn = (data: any) => Promise<Buffer>;
 
 /**
- * Registry of all document generators, keyed by artifact type.
+ * Registry of Word document generators, keyed by artifact type.
  * Each function takes the artifact's `data` object and returns a Buffer (.docx).
  */
 export const generators: Record<ArtifactType, GeneratorFn> = {
@@ -57,9 +59,27 @@ export const generators: Record<ArtifactType, GeneratorFn> = {
   "completeness-report": generateCompletenessReport,
 };
 
+/**
+ * Registry of Excel spreadsheet generators.
+ * Only certain artifact types have xlsx versions (risk register, budget).
+ */
+export const xlsxGenerators: Partial<Record<ArtifactType, GeneratorFn>> = {
+  "risk-register": generateRiskRegisterXlsx,
+  "budget": generateBudgetXlsx,
+};
+
+/** Artifact types that have an xlsx alternative */
+export function hasXlsxGenerator(type: ArtifactType): boolean {
+  return type in xlsxGenerators;
+}
+
 /** File name for a downloaded artifact */
-export function getFileName(artifactType: ArtifactType, projectName: string): string {
+export function getFileName(
+  artifactType: ArtifactType,
+  projectName: string,
+  format: "docx" | "xlsx" = "docx"
+): string {
   const safeName = projectName.replace(/[^a-zA-Z0-9-_ ]/g, "").replace(/\s+/g, "_");
   const typeLabel = artifactType.replace(/-/g, "_");
-  return `${safeName}_${typeLabel}.docx`;
+  return `${safeName}_${typeLabel}.${format}`;
 }
