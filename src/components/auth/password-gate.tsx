@@ -3,7 +3,8 @@
 import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BriefKitLogo } from "@/components/ui/briefkit-logo";
 
 const SESSION_KEY = "btp-auth";
 
@@ -73,12 +74,16 @@ export function PasswordGate({ children }: PasswordGateProps) {
       <div className="w-full max-w-sm space-y-6 px-4">
         {/* Logo / Title */}
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Lock className="h-6 w-6 text-primary" />
+          <div className="mx-auto mb-4">
+            <BriefKitLogo size={64} className="mx-auto" />
           </div>
-          <h1 className="text-2xl font-semibold">Brief-to-Project</h1>
+          <h1 className="font-display text-3xl">BriefKit</h1>
+          <p className="mt-2 text-sm font-medium italic text-foreground/80">
+            Your brief, fully equipped.
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Enter the demo password to continue
+            A conversational AI app that takes your project idea and builds it
+            into a complete, downloadable documentation package.
           </p>
         </div>
 

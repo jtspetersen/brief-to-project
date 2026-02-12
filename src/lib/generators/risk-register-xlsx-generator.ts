@@ -58,7 +58,7 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
 
 export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Brief-to-Project";
+  workbook.creator = "BriefKit";
 
   const sheet = workbook.addWorksheet("Risk Register", {
     views: [{ state: "frozen", ySplit: 2 }], // Freeze header rows

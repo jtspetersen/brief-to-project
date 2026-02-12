@@ -54,7 +54,7 @@ export function ArtifactSidebar() {
       {/* Header */}
       <div className="flex items-center border-b px-6 py-4">
         <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">Documents</h2>
+        <h2 className="font-display text-lg">Documents</h2>
         <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
           {artifactCount}
         </span>

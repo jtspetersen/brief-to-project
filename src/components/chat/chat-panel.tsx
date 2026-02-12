@@ -6,6 +6,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, type FormEvent } fro
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageBubble } from "@/components/chat/message-bubble";
+import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { useSession } from "@/hooks/use-session";
 import {
   parseMessageForArtifacts,
@@ -15,6 +16,7 @@ import { STAGES } from "@/lib/types/stages";
 import type { StageNumber } from "@/lib/types/stages";
 import type { ArtifactType } from "@/lib/types/artifacts";
 import { Send, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { BriefKitLogo } from "@/components/ui/briefkit-logo";
 
 /** Which artifact types mark a stage as "complete enough" to offer advancing */
 const STAGE_KEY_ARTIFACTS: Record<number, ArtifactType[]> = {
@@ -151,9 +153,10 @@ export function ChatPanel() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center border-b px-6 py-4">
-        <h1 className="text-lg font-semibold">Brief-to-Project</h1>
-        <span className="ml-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-3 border-b px-6 py-4">
+        <BriefKitLogo size={28} />
+        <h1 className="font-display text-lg">BriefKit</h1>
+        <span className="text-sm text-muted-foreground">
           AI Project Advisor
         </span>
       </div>
@@ -167,8 +170,8 @@ export function ChatPanel() {
         {!hasMessages ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <h2 className="text-xl font-semibold">
-                Welcome to Brief-to-Project
+              <h2 className="font-display text-2xl">
+                Welcome to BriefKit
               </h2>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 Describe your project idea and I&apos;ll guide you through
@@ -183,12 +186,7 @@ export function ChatPanel() {
               <MessageBubble key={message.id} message={message} />
             ))}
 
-            {status === "submitted" && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Thinking...
-              </div>
-            )}
+            {status === "submitted" && <TypingIndicator />}
 
             <div ref={scrollAnchorRef} />
           </div>

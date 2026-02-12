@@ -63,7 +63,7 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
 
 export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Brief-to-Project";
+  workbook.creator = "BriefKit";
 
   const sheet = workbook.addWorksheet("Budget Estimate", {
     views: [{ state: "frozen", ySplit: 2 }],

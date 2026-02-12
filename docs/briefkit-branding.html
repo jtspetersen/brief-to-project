@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BriefKit — Brand Identity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Primary — Amber — Primary */
+    --kit-50: #FFF8F0;
+    --kit-100: #FEEFD6;
+    --kit-200: #FDDCAD;
+    --kit-300: #FCC47D;
+    --kit-400: #F9A842;
+    --kit-500: #E8922B;
+    --kit-600: #C97318;
+    --kit-700: #9E5514;
+
+    /* Warm Neutrals */
+    --warm-50: #FDFCFA;
+    --warm-100: #F7F4EF;
+    --warm-200: #EDE8E0;
+    --warm-300: #D5CEC3;
+    --warm-400: #B0A698;
+    --warm-500: #877D6F;
+    --warm-600: #635B50;
+    --warm-700: #433D36;
+    --warm-800: #2A2621;
+    --warm-900: #1A1714;
+
+    /* Accent — Ember (Terracotta) */
+    --ember-100: #FAEAE4;
+    --ember-200: #F2CFC2;
+    --ember-300: #E4A48E;
+    --ember-400: #D4785B;
+    --ember-500: #BF5E3E;
+    --ember-600: #9A4630;
+
+    /* Accent — Patina (Sage) */
+    --patina-100: #EEF3EC;
+    --patina-200: #D4E0CF;
+    --patina-300: #A8BFA0;
+    --patina-400: #7A9B6F;
+    --patina-500: #5B7C50;
+    --patina-600: #3F5C37;
+
+    /* Accent — Steel (Sky) */
+    --steel-100: #ECF3F9;
+    --steel-200: #D0E2F0;
+    --steel-300: #9EC4DF;
+    --steel-400: #6BA3CA;
+    --steel-500: #4A83AD;
+    --steel-600: #33627F;
+
+    /* Typography */
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4.5rem;
+    --space-4xl: 6rem;
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-soft: 0 2px 16px rgba(42,38,33,0.06);
+    --shadow-card: 0 4px 24px rgba(42,38,33,0.08);
+    --shadow-lifted: 0 8px 40px rgba(42,38,33,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--warm-800);
+    background: var(--warm-50);
+    line-height: 1.65;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Subtle grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.022;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  /* ──── NAV ──── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253,252,250,0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--warm-200);
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--warm-800);
+  }
+  .nav-logo svg { width: 30px; height: 30px; }
+  .nav-logo span {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--warm-500);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--kit-600); }
+
+  /* ──── HERO ──── */
+  .hero {
+    padding: var(--space-4xl) 2rem var(--space-3xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, var(--kit-100) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 40% at 80% 65%, var(--ember-100) 0%, transparent 70%),
+      radial-gradient(ellipse 30% 50% at 12% 80%, var(--patina-100) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--kit-100);
+    color: var(--kit-700);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-lg);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    animation: fadeInDown 0.6s ease-out;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--kit-500);
+  }
+  .hero-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-2xl);
+    animation: fadeInUp 0.7s ease-out 0.05s both;
+  }
+  .hero-logo svg {
+    width: 104px; height: 104px;
+    filter: drop-shadow(0 6px 20px rgba(233,146,43,0.22));
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.15;
+    color: var(--warm-900);
+    max-width: 700px;
+    margin: 0 auto var(--space-md);
+    animation: fadeInUp 0.7s ease-out 0.1s both;
+  }
+  .hero .tagline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--kit-600);
+    margin-bottom: var(--space-lg);
+    animation: fadeInUp 0.7s ease-out 0.18s both;
+  }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--warm-500);
+    max-width: 560px;
+    margin: 0 auto var(--space-2xl);
+    line-height: 1.7;
+    animation: fadeInUp 0.7s ease-out 0.25s both;
+  }
+
+  /* ──── SECTIONS ──── */
+  section {
+    padding: var(--space-4xl) 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--kit-600);
+    margin-bottom: var(--space-sm);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--warm-900);
+    margin-bottom: var(--space-md);
+    line-height: 1.25;
+  }
+  .section-desc {
+    color: var(--warm-500);
+    max-width: 560px;
+    margin-bottom: var(--space-2xl);
+    line-height: 1.7;
+  }
+  .section-divider { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  .section-divider hr { border: none; border-top: 1px solid var(--warm-200); }
+
+  /* ──── LOGO SECTION ──── */
+  .logo-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+  .logo-card {
+    background: var(--warm-100);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    min-height: 200px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .logo-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .logo-card.dark { background: var(--warm-800); }
+  .logo-card.amber { background: linear-gradient(135deg, var(--kit-400), var(--kit-500)); }
+  .logo-card svg { width: 64px; height: 64px; }
+  .logo-card .logo-wordmark {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--warm-800);
+    letter-spacing: -0.01em;
+  }
+  .logo-card.dark .logo-wordmark { color: var(--warm-100); }
+  .logo-card.amber .logo-wordmark { color: white; }
+
+  .logo-construction {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+  .construct-box {
+    padding: var(--space-lg);
+    border: 1px solid var(--warm-200);
+    border-radius: var(--radius-md);
+    background: white;
+  }
+  .construct-box h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+    color: var(--warm-700);
+  }
+  .construct-box p {
+    font-size: 0.82rem;
+    color: var(--warm-400);
+    line-height: 1.6;
+  }
+  .construct-box.do { border-left: 3px solid var(--patina-400); }
+  .construct-box.dont { border-left: 3px solid var(--ember-400); }
+
+  /* ──── SVG CODE BOX ──── */
+  .svg-code-section {
+    margin-top: var(--space-2xl);
+    background: var(--warm-800);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .svg-code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--warm-700);
+  }
+  .svg-code-header span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--warm-300);
+  }
+  .svg-code-header .copy-hint {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--warm-400);
+    background: var(--warm-600);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+  }
+  .svg-code-body {
+    padding: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.8;
+    color: var(--kit-300);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ──── PALETTE ──── */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+  .palette-group h4 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--warm-500);
+    margin-bottom: var(--space-sm);
+  }
+  .palette-swatches {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+  }
+  .swatch {
+    padding: 0.8rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+  }
+  .swatch-name { font-family: var(--font-body); font-weight: 500; font-size: 0.8rem; }
+
+  /* ──── TYPOGRAPHY ──── */
+  .type-specimen { display: grid; gap: var(--space-2xl); margin-bottom: var(--space-2xl); }
+  .type-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+    padding-bottom: var(--space-2xl);
+    border-bottom: 1px solid var(--warm-200);
+  }
+  .type-meta h4 {
+    font-size: 0.78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warm-500); margin-bottom: var(--space-xs);
+  }
+  .type-meta p { font-size: 0.78rem; color: var(--warm-400); line-height: 1.6; }
+  .type-meta code {
+    display: inline-block; margin-top: var(--space-xs);
+    font-family: var(--font-mono); font-size: 0.72rem;
+    background: var(--warm-100); padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm); color: var(--warm-600);
+  }
+  .type-sample.display {
+    font-family: var(--font-display);
+    font-size: 2.8rem; line-height: 1.2; color: var(--warm-900);
+  }
+  .type-sample.body {
+    font-family: var(--font-body);
+    font-size: 1rem; line-height: 1.7; color: var(--warm-700); max-width: 520px;
+  }
+  .type-sample.mono {
+    font-family: var(--font-mono);
+    font-size: 0.88rem; line-height: 1.7; color: var(--warm-600);
+    background: var(--warm-100); padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+  }
+  .type-scale {
+    display: flex; flex-direction: column; gap: var(--space-md);
+    margin-top: var(--space-xl); padding: var(--space-xl);
+    background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+  }
+  .type-scale-row { display: flex; align-items: baseline; gap: var(--space-lg); }
+  .type-scale-label {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--warm-400); min-width: 50px; text-align: right;
+  }
+  .scale-h1 { font-family: var(--font-display); font-size: 2.4rem; color: var(--warm-900); }
+  .scale-h2 { font-family: var(--font-display); font-size: 1.8rem; color: var(--warm-900); }
+  .scale-h3 { font-family: var(--font-body); font-size: 1.2rem; font-weight: 600; color: var(--warm-800); }
+  .scale-body { font-family: var(--font-body); font-size: 1rem; color: var(--warm-700); }
+  .scale-small { font-family: var(--font-body); font-size: 0.85rem; color: var(--warm-500); }
+  .scale-caption { font-family: var(--font-mono); font-size: 0.75rem; color: var(--warm-400); }
+
+  /* ──── TEMPLATES ──── */
+  .template-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+  }
+  .template-preview {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .template-preview:hover { transform: translateY(-3px); box-shadow: var(--shadow-lifted); }
+  .template-preview.full-width { grid-column: 1 / -1; }
+
+  /* Cover mockup */
+  .cover-mockup {
+    aspect-ratio: 8.5/5.5;
+    background: linear-gradient(160deg, var(--warm-50) 0%, var(--kit-50) 100%);
+    padding: var(--space-2xl);
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .cover-mockup::before {
+    content: '';
+    position: absolute; top: -40%; right: -20%;
+    width: 60%; height: 140%;
+    background: radial-gradient(ellipse, var(--kit-100) 0%, transparent 70%);
+    opacity: 0.6;
+  }
+  .cover-stripe {
+    position: absolute; top: 0; left: 0;
+    width: 6px; height: 100%;
+    background: linear-gradient(180deg, var(--kit-400), var(--ember-400));
+  }
+  .cover-content { position: relative; z-index: 1; padding-left: var(--space-lg); }
+  .cover-logo-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: var(--space-xl); }
+  .cover-logo-row svg { width: 28px; height: 28px; }
+  .cover-logo-row span { font-family: var(--font-display); font-size: 0.95rem; color: var(--warm-700); }
+  .cover-mockup h3 {
+    font-family: var(--font-display);
+    font-size: 1.6rem; color: var(--warm-900); margin-bottom: var(--space-sm);
+  }
+  .cover-sub { font-size: 0.85rem; color: var(--warm-500); margin-bottom: var(--space-lg); }
+  .cover-meta { font-size: 0.72rem; color: var(--warm-400); font-family: var(--font-mono); }
+
+  /* Header mockup */
+  .header-mockup {
+    padding: var(--space-lg) var(--space-xl);
+    background: white;
+    border-bottom: 2px solid var(--kit-300);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-left { display: flex; align-items: center; gap: 0.5rem; }
+  .header-left svg { width: 22px; height: 22px; }
+  .header-left span { font-family: var(--font-display); font-size: 0.85rem; color: var(--warm-700); }
+  .header-right { font-size: 0.72rem; color: var(--warm-400); font-family: var(--font-mono); }
+  .doc-body-mockup { padding: var(--space-xl); }
+  .doc-body-mockup h4 {
+    font-family: var(--font-display);
+    font-size: 1.15rem; color: var(--warm-900); margin-bottom: var(--space-sm);
+  }
+  .mock-line { height: 8px; background: var(--warm-200); border-radius: 4px; margin-bottom: var(--space-sm); }
+  .mock-line:nth-child(2) { width: 100%; }
+  .mock-line:nth-child(3) { width: 90%; }
+  .mock-line:nth-child(4) { width: 95%; }
+  .mock-line:nth-child(5) { width: 60%; }
+  .footer-mockup {
+    padding: var(--space-md) var(--space-xl);
+    background: var(--warm-100);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.7rem; color: var(--warm-400); font-family: var(--font-mono);
+    border-top: 1px solid var(--warm-200);
+  }
+
+  /* Stage progress mockup */
+  .stage-mockup { padding: var(--space-xl); background: white; }
+  .stage-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: var(--space-lg); }
+  .stage-header svg { width: 20px; height: 20px; }
+  .stage-header span { font-family: var(--font-display); font-size: 0.95rem; color: var(--warm-800); }
+  .stage-progress {
+    display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg);
+  }
+  .stage-step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+  }
+  .stage-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+    transition: all 0.3s;
+  }
+  .stage-dot.complete { background: var(--kit-400); color: white; }
+  .stage-dot.active { background: var(--kit-100); color: var(--kit-600); border: 2px solid var(--kit-400); }
+  .stage-dot.pending { background: var(--warm-100); color: var(--warm-400); }
+  .stage-label {
+    font-size: 0.62rem; font-weight: 500;
+    color: var(--warm-400); text-align: center;
+    line-height: 1.3;
+  }
+  .stage-label.active-label { color: var(--kit-600); font-weight: 600; }
+  .stage-artifacts {
+    display: flex; flex-wrap: wrap; gap: var(--space-sm);
+  }
+  .artifact-chip {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    background: var(--warm-100);
+    border-radius: var(--radius-full);
+    font-size: 0.72rem; color: var(--warm-600);
+  }
+  .artifact-chip.generated {
+    background: var(--kit-100);
+    color: var(--kit-700);
+  }
+  .artifact-chip .chip-icon { font-size: 0.8rem; }
+
+  .template-label {
+    padding: var(--space-md) var(--space-xl);
+    background: var(--warm-50);
+    border-top: 1px solid var(--warm-200);
+    font-size: 0.78rem; font-weight: 600; color: var(--warm-600);
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+  .tl-tag {
+    font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--kit-100); color: var(--kit-700);
+    padding: 0.15rem 0.5rem; border-radius: var(--radius-full);
+  }
+
+  /* ──── JOURNEY ──── */
+  .journey-flow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+  }
+  .journey-stage {
+    text-align: center;
+    padding: var(--space-lg) var(--space-sm);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--warm-200);
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .journey-stage:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .journey-stage::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .journey-stage:nth-child(1)::before { background: var(--kit-300); }
+  .journey-stage:nth-child(2)::before { background: var(--kit-400); }
+  .journey-stage:nth-child(3)::before { background: var(--kit-500); }
+  .journey-stage:nth-child(4)::before { background: var(--ember-400); }
+  .journey-stage:nth-child(5)::before { background: var(--ember-500); }
+  .journey-stage:nth-child(6)::before { background: var(--patina-500); }
+  .journey-num {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; color: var(--warm-400);
+    margin-bottom: var(--space-xs);
+  }
+  .journey-stage h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem; color: var(--warm-900);
+    margin-bottom: var(--space-xs); line-height: 1.3;
+  }
+  .journey-stage p {
+    font-size: 0.7rem; color: var(--warm-400); line-height: 1.5;
+  }
+  .journey-arrow {
+    display: none; /* Simplified for mobile — arrows implied by flow */
+  }
+
+  /* ──── FOOTER ──── */
+  .site-footer {
+    padding: var(--space-3xl) 2rem var(--space-2xl);
+    text-align: center;
+    border-top: 1px solid var(--warm-200);
+    background: var(--warm-100);
+  }
+  .site-footer .footer-logo {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.5rem; margin-bottom: var(--space-md);
+  }
+  .site-footer .footer-logo svg { width: 24px; height: 24px; }
+  .site-footer .footer-logo span { font-family: var(--font-display); font-size: 1rem; color: var(--warm-700); }
+  .site-footer p {
+    font-size: 0.82rem; color: var(--warm-400);
+    line-height: 1.7; max-width: 420px; margin: 0 auto var(--space-lg);
+  }
+  .site-footer .footer-meta {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--warm-400);
+  }
+
+  /* ──── ANIMATIONS ──── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ──── RESPONSIVE ──── */
+  @media (max-width: 768px) {
+    nav .nav-links { display: none; }
+    .logo-showcase { grid-template-columns: 1fr; }
+    .logo-construction { grid-template-columns: 1fr; }
+    .template-grid { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; }
+    .palette-grid { grid-template-columns: 1fr; }
+    .journey-flow { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SVG DEFS (shared) ═══ -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+  <defs>
+    <linearGradient id="forgeGrad" x1="0" y1="0" x2="80" y2="80">
+      <stop offset="0%" stop-color="#FCC47D"/>
+      <stop offset="100%" stop-color="#F9A842"/>
+    </linearGradient>
+    <linearGradient id="emberGrad" x1="0" y1="0" x2="40" y2="40">
+      <stop offset="0%" stop-color="#C97318"/>
+      <stop offset="100%" stop-color="#E8922B"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <svg viewBox="0 0 40 40" fill="none">
+      <rect width="40" height="40" rx="10" fill="url(#forgeGrad)"/>
+      <path d="M9 16C9 14.34 10.34 13 12 13H17L22 18V26C22 27.66 20.66 29 19 29H12C10.34 29 9 27.66 9 26V16Z" fill="white" fill-opacity="0.35"/>
+      <path d="M13 15C13 13.34 14.34 12 16 12H22L28 18V27C28 28.66 26.66 30 25 30H16C14.34 30 13 28.66 13 27V15Z" fill="white" fill-opacity="0.55"/>
+      <path d="M17 14C17 12.34 18.34 11 20 11H26L32 17V28C32 29.66 30.66 31 29 31H20C18.34 31 17 29.66 17 28V14Z" fill="white" fill-opacity="0.92"/>
+      <path d="M26 11L32 17H28C26.34 17 26 16.16 26 14.5V11Z" fill="white" fill-opacity="0.55"/>
+      <path d="M21 23H29" stroke="url(#emberGrad)" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M21 25.5H27" stroke="url(#emberGrad)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+    <span>BriefKit</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#logo">Logo</a></li>
+    <li><a href="#colors">Colors</a></li>
+    <li><a href="#typography">Type</a></li>
+    <li><a href="#templates">Templates</a></li>
+    <li><a href="#journey">Journey</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-badge">Brand Kit v1.0</div>
+  <div class="hero-logo">
+    <svg viewBox="0 0 80 80" fill="none">
+      <rect width="80" height="80" rx="20" fill="url(#forgeGrad)"/>
+      <!-- Back document (offset left) -->
+      <path d="M18 32C18 28.69 20.69 26 24 26H34L44 36V52C44 55.31 41.31 58 38 58H24C20.69 58 18 55.31 18 52V32Z" fill="white" fill-opacity="0.35"/>
+      <!-- Middle document (slight offset) -->
+      <path d="M24 30C24 26.69 26.69 24 30 24H42L54 36V54C54 57.31 51.31 60 48 60H30C26.69 60 24 57.31 24 54V30Z" fill="white" fill-opacity="0.55"/>
+      <!-- Front document -->
+      <path d="M30 28C30 24.69 32.69 22 36 22H48L62 36V56C62 59.31 59.31 62 56 62H36C32.69 62 30 59.31 30 56V28Z" fill="white" fill-opacity="0.92"/>
+      <path d="M48 22L62 36H52C48.69 36 48 34.31 48 31V22Z" fill="white" fill-opacity="0.55"/>
+      <!-- Content lines on front doc -->
+      <path d="M38 46H54" stroke="url(#emberGrad)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M38 50H50" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <path d="M38 54H46" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+    </svg>
+  </div>
+  <h1>BriefKit</h1>
+  <div class="tagline">Your brief, fully equipped.</div>
+  <p>A conversational AI app that takes your project idea and builds it into a complete, downloadable documentation package.</p>
+  <p style="font-size:0.92rem; color:var(--warm-400); max-width:480px; margin:0 auto;">This document defines the BriefKit brand — logo, color palette, typography, and document templates — to ensure a consistent identity across the product and its deliverables.</p>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══ LOGO ═══ -->
+<section id="logo">
+  <div class="section-label">01 — Logo</div>
+  <h2 class="section-title">The Mark</h2>
+  <p class="section-desc">A document at the center with smaller elements radiating outward — representing a single brief that expands into a complete kit of project deliverables. Warm, organized, and purposeful.</p>
+
+  <div class="logo-showcase">
+    <div class="logo-card">
+      <svg viewBox="0 0 80 80" fill="none" width="64" height="64">
+        <rect width="80" height="80" rx="20" fill="url(#forgeGrad)"/>
+        <path d="M18 32C18 28.69 20.69 26 24 26H34L44 36V52C44 55.31 41.31 58 38 58H24C20.69 58 18 55.31 18 52V32Z" fill="white" fill-opacity="0.35"/>
+        <path d="M24 30C24 26.69 26.69 24 30 24H42L54 36V54C54 57.31 51.31 60 48 60H30C26.69 60 24 57.31 24 54V30Z" fill="white" fill-opacity="0.55"/>
+        <path d="M30 28C30 24.69 32.69 22 36 22H48L62 36V56C62 59.31 59.31 62 56 62H36C32.69 62 30 59.31 30 56V28Z" fill="white" fill-opacity="0.92"/>
+        <path d="M48 22L62 36H52C48.69 36 48 34.31 48 31V22Z" fill="white" fill-opacity="0.55"/>
+        <path d="M38 46H54" stroke="url(#emberGrad)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M38 50H50" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path d="M38 54H46" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+      </svg>
+      <span class="logo-wordmark">BriefKit</span>
+    </div>
+    <div class="logo-card dark">
+      <svg viewBox="0 0 80 80" fill="none" width="64" height="64">
+        <rect width="80" height="80" rx="20" fill="url(#forgeGrad)"/>
+        <path d="M18 32C18 28.69 20.69 26 24 26H34L44 36V52C44 55.31 41.31 58 38 58H24C20.69 58 18 55.31 18 52V32Z" fill="white" fill-opacity="0.35"/>
+        <path d="M24 30C24 26.69 26.69 24 30 24H42L54 36V54C54 57.31 51.31 60 48 60H30C26.69 60 24 57.31 24 54V30Z" fill="white" fill-opacity="0.55"/>
+        <path d="M30 28C30 24.69 32.69 22 36 22H48L62 36V56C62 59.31 59.31 62 56 62H36C32.69 62 30 59.31 30 56V28Z" fill="white" fill-opacity="0.92"/>
+        <path d="M48 22L62 36H52C48.69 36 48 34.31 48 31V22Z" fill="white" fill-opacity="0.55"/>
+        <path d="M38 46H54" stroke="url(#emberGrad)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M38 50H50" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path d="M38 54H46" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+      </svg>
+      <span class="logo-wordmark">BriefKit</span>
+    </div>
+    <div class="logo-card amber">
+      <svg viewBox="0 0 80 80" fill="none" width="64" height="64">
+        <rect width="80" height="80" rx="20" fill="white" fill-opacity="0.2"/>
+        <path d="M18 32C18 28.69 20.69 26 24 26H34L44 36V52C44 55.31 41.31 58 38 58H24C20.69 58 18 55.31 18 52V32Z" fill="white" fill-opacity="0.35"/>
+        <path d="M24 30C24 26.69 26.69 24 30 24H42L54 36V54C54 57.31 51.31 60 48 60H30C26.69 60 24 57.31 24 54V30Z" fill="white" fill-opacity="0.55"/>
+        <path d="M30 28C30 24.69 32.69 22 36 22H48L62 36V56C62 59.31 59.31 62 56 62H36C32.69 62 30 59.31 30 56V28Z" fill="white" fill-opacity="0.92"/>
+        <path d="M48 22L62 36H52C48.69 36 48 34.31 48 31V22Z" fill="white" fill-opacity="0.55"/>
+        <path d="M38 46H54" stroke="#9E5514" stroke-width="2" stroke-linecap="round"/>
+        <path d="M38 50H50" stroke="#9E5514" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path d="M38 54H46" stroke="#9E5514" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+      </svg>
+      <span class="logo-wordmark">BriefKit</span>
+    </div>
+  </div>
+
+  <div class="logo-construction">
+    <div class="construct-box do">
+      <h4>✓ Do</h4>
+      <p>Use on clean backgrounds. Maintain clear space equal to at least ¼ the logo width on all sides. Always pair the icon with the wordmark for first impressions.</p>
+    </div>
+    <div class="construct-box do">
+      <h4>✓ Do</h4>
+      <p>Use the icon alone for favicons, app icons, and tight UI spaces. The amber gradient background is the default — use dark/branded variants only when context requires.</p>
+    </div>
+    <div class="construct-box dont">
+      <h4>✗ Don't</h4>
+      <p>Don't rotate, skew, or rearrange the elements. The relationship between the main document and its surrounding pieces is central to the brand — keep it intact.</p>
+    </div>
+    <div class="construct-box dont">
+      <h4>✗ Don't</h4>
+      <p>Don't recolor the gradient or place on busy or low-contrast backgrounds. Don't use below 24px — switch to a simplified favicon at small sizes.</p>
+    </div>
+  </div>
+
+  <!-- SVG source code -->
+  <div class="svg-code-section">
+    <div class="svg-code-header">
+      <span>briefkit-logo.svg</span>
+      <span class="copy-hint">Copy &amp; paste ready</span>
+    </div>
+    <div class="svg-code-body">&lt;svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;defs&gt;
+    &lt;linearGradient id="kitGrad" x1="0" y1="0" x2="80" y2="80"&gt;
+      &lt;stop offset="0%" stop-color="#FCC47D"/&gt;
+      &lt;stop offset="100%" stop-color="#F9A842"/&gt;
+    &lt;/linearGradient&gt;
+    &lt;linearGradient id="emberGrad" x1="0" y1="0" x2="40" y2="40"&gt;
+      &lt;stop offset="0%" stop-color="#C97318"/&gt;
+      &lt;stop offset="100%" stop-color="#E8922B"/&gt;
+    &lt;/linearGradient&gt;
+  &lt;/defs&gt;
+  &lt;rect width="80" height="80" rx="20" fill="url(#kitGrad)"/&gt;
+  &lt;!-- Back document --&gt;
+  &lt;path d="M18 32C18 28.69 20.69 26 24 26H34L44 36V52C44 55.31 41.31 58 38 58H24C20.69 58 18 55.31 18 52V32Z" fill="white" fill-opacity="0.35"/&gt;
+  &lt;!-- Middle document --&gt;
+  &lt;path d="M24 30C24 26.69 26.69 24 30 24H42L54 36V54C54 57.31 51.31 60 48 60H30C26.69 60 24 57.31 24 54V30Z" fill="white" fill-opacity="0.55"/&gt;
+  &lt;!-- Front document --&gt;
+  &lt;path d="M30 28C30 24.69 32.69 22 36 22H48L62 36V56C62 59.31 59.31 62 56 62H36C32.69 62 30 59.31 30 56V28Z" fill="white" fill-opacity="0.92"/&gt;
+  &lt;path d="M48 22L62 36H52C48.69 36 48 34.31 48 31V22Z" fill="white" fill-opacity="0.55"/&gt;
+  &lt;!-- Content lines --&gt;
+  &lt;path d="M38 46H54" stroke="url(#emberGrad)" stroke-width="2" stroke-linecap="round"/&gt;
+  &lt;path d="M38 50H50" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/&gt;
+  &lt;path d="M38 54H46" stroke="url(#emberGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/&gt;
+&lt;/svg&gt;</div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══ COLORS ═══ -->
+<section id="colors">
+  <div class="section-label">02 — Color</div>
+  <h2 class="section-title">Palette</h2>
+  <p class="section-desc">A warm amber primary supported by Ember for warmth, Patina for success states, and Steel for information. Designed to feel approachable and professional — never cold or clinical.</p>
+
+  <div class="palette-grid">
+    <div class="palette-group">
+      <h4>Amber — Primary — Primary</h4>
+      <div class="palette-swatches">
+        <div class="swatch" style="background:#FCC47D;color:#9E5514"><span class="swatch-name">300</span> #FCC47D</div>
+        <div class="swatch" style="background:#F9A842;color:#9E5514"><span class="swatch-name">400</span> #F9A842</div>
+        <div class="swatch" style="background:#E8922B;color:white"><span class="swatch-name">500</span> #E8922B</div>
+        <div class="swatch" style="background:#C97318;color:white"><span class="swatch-name">600</span> #C97318</div>
+        <div class="swatch" style="background:#9E5514;color:white"><span class="swatch-name">700</span> #9E5514</div>
+      </div>
+    </div>
+    <div class="palette-group">
+      <h4>Ember — Accent / Alerts</h4>
+      <div class="palette-swatches">
+        <div class="swatch" style="background:#E4A48E;color:#9A4630"><span class="swatch-name">300</span> #E4A48E</div>
+        <div class="swatch" style="background:#D4785B;color:white"><span class="swatch-name">400</span> #D4785B</div>
+        <div class="swatch" style="background:#BF5E3E;color:white"><span class="swatch-name">500</span> #BF5E3E</div>
+        <div class="swatch" style="background:#9A4630;color:white"><span class="swatch-name">600</span> #9A4630</div>
+      </div>
+    </div>
+    <div class="palette-group">
+      <h4>Patina — Success / Complete</h4>
+      <div class="palette-swatches">
+        <div class="swatch" style="background:#A8BFA0;color:#3F5C37"><span class="swatch-name">300</span> #A8BFA0</div>
+        <div class="swatch" style="background:#7A9B6F;color:white"><span class="swatch-name">400</span> #7A9B6F</div>
+        <div class="swatch" style="background:#5B7C50;color:white"><span class="swatch-name">500</span> #5B7C50</div>
+        <div class="swatch" style="background:#3F5C37;color:white"><span class="swatch-name">600</span> #3F5C37</div>
+      </div>
+    </div>
+    <div class="palette-group">
+      <h4>Steel — Info / Links</h4>
+      <div class="palette-swatches">
+        <div class="swatch" style="background:#9EC4DF;color:#33627F"><span class="swatch-name">300</span> #9EC4DF</div>
+        <div class="swatch" style="background:#6BA3CA;color:white"><span class="swatch-name">400</span> #6BA3CA</div>
+        <div class="swatch" style="background:#4A83AD;color:white"><span class="swatch-name">500</span> #4A83AD</div>
+        <div class="swatch" style="background:#33627F;color:white"><span class="swatch-name">600</span> #33627F</div>
+      </div>
+    </div>
+    <div class="palette-group" style="grid-column: 1 / -1;">
+      <h4>Warm Neutrals</h4>
+      <div class="palette-swatches" style="flex-direction:row; flex-wrap:wrap;">
+        <div class="swatch" style="background:#FDFCFA;color:#877D6F;flex:1;min-width:120px"><span class="swatch-name">50</span> #FDFCFA</div>
+        <div class="swatch" style="background:#F7F4EF;color:#877D6F;flex:1;min-width:120px"><span class="swatch-name">100</span> #F7F4EF</div>
+        <div class="swatch" style="background:#EDE8E0;color:#877D6F;flex:1;min-width:120px"><span class="swatch-name">200</span> #EDE8E0</div>
+        <div class="swatch" style="background:#B0A698;color:white;flex:1;min-width:120px"><span class="swatch-name">400</span> #B0A698</div>
+        <div class="swatch" style="background:#635B50;color:white;flex:1;min-width:120px"><span class="swatch-name">600</span> #635B50</div>
+        <div class="swatch" style="background:#2A2621;color:white;flex:1;min-width:120px"><span class="swatch-name">800</span> #2A2621</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══ TYPOGRAPHY ═══ -->
+<section id="typography">
+  <div class="section-label">03 — Typography</div>
+  <h2 class="section-title">Type System</h2>
+  <p class="section-desc">Elegant serifs for headlines, a clean humanist sans for conversation and UI, and monospace for metadata and code. Warm and readable at every size.</p>
+
+  <div class="type-specimen">
+    <div class="type-row">
+      <div class="type-meta">
+        <h4>Display</h4>
+        <p>Headings, stage titles, document covers</p>
+        <code>DM Serif Display</code>
+      </div>
+      <div class="type-sample display">Brief in,<br><em>project out.</em></div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <h4>Body</h4>
+        <p>Chat messages, UI text, descriptions</p>
+        <code>Plus Jakarta Sans</code>
+      </div>
+      <div class="type-sample body">Tell me about your project — what problem are you trying to solve, and who's it for? I'll help you shape that into a clear brief and then build out the full documentation you need to get started.</div>
+    </div>
+    <div class="type-row" style="border-bottom:none; padding-bottom:0;">
+      <div class="type-meta">
+        <h4>Mono</h4>
+        <p>Stage labels, metadata, artifact tags</p>
+        <code>JetBrains Mono</code>
+      </div>
+      <div class="type-sample mono">stage: 2/6 — define & scope
+artifacts: charter.docx, scope.docx, kpis.md
+status: IN_PROGRESS</div>
+    </div>
+  </div>
+
+  <div class="type-scale">
+    <div class="type-scale-row"><span class="type-scale-label">H1</span><span class="scale-h1">Define & Scope</span></div>
+    <div class="type-scale-row"><span class="type-scale-label">H2</span><span class="scale-h2">Risk Assessment</span></div>
+    <div class="type-scale-row"><span class="type-scale-label">H3</span><span class="scale-h3">Stakeholder Analysis</span></div>
+    <div class="type-scale-row"><span class="type-scale-label">Body</span><span class="scale-body">BriefKit guides you from a rough idea to a complete project documentation package.</span></div>
+    <div class="type-scale-row"><span class="type-scale-label">Small</span><span class="scale-small">Artifacts are generated as you progress through each stage.</span></div>
+    <div class="type-scale-row"><span class="type-scale-label">Caption</span><span class="scale-caption">v1.0 — Generated by BriefKit — Feb 2026</span></div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══ TEMPLATES ═══ -->
+<section id="templates">
+  <div class="section-label">04 — Templates</div>
+  <h2 class="section-title">Branded Documents</h2>
+  <p class="section-desc">Every artifact BriefKit generates carries consistent branding — from cover pages to headers, footers, and progress components.</p>
+
+  <div class="template-grid">
+    <!-- Cover page -->
+    <div class="template-preview full-width">
+      <div class="cover-mockup">
+        <div class="cover-stripe"></div>
+        <div class="cover-content">
+          <div class="cover-logo-row">
+            <svg viewBox="0 0 40 40" fill="none" width="28" height="28">
+      <rect width="40" height="40" rx="10" fill="url(#forgeGrad)"/>
+      <path d="M9 16C9 14.34 10.34 13 12 13H17L22 18V26C22 27.66 20.66 29 19 29H12C10.34 29 9 27.66 9 26V16Z" fill="white" fill-opacity="0.35"/>
+      <path d="M13 15C13 13.34 14.34 12 16 12H22L28 18V27C28 28.66 26.66 30 25 30H16C14.34 30 13 28.66 13 27V15Z" fill="white" fill-opacity="0.55"/>
+      <path d="M17 14C17 12.34 18.34 11 20 11H26L32 17V28C32 29.66 30.66 31 29 31H20C18.34 31 17 29.66 17 28V14Z" fill="white" fill-opacity="0.92"/>
+      <path d="M26 11L32 17H28C26.34 17 26 16.16 26 14.5V11Z" fill="white" fill-opacity="0.55"/>
+      <path d="M21 23H29" stroke="url(#emberGrad)" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M21 25.5H27" stroke="url(#emberGrad)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+            <span>BriefKit</span>
+          </div>
+          <h3>Project Charter</h3>
+          <div class="cover-sub">Digital Transformation Initiative — Phase 2</div>
+          <div class="cover-meta">Built from brief &nbsp;·&nbsp; February 2026 &nbsp;·&nbsp; Stage 2 of 6 &nbsp;·&nbsp; CONFIDENTIAL</div>
+        </div>
+      </div>
+      <div class="template-label"><span class="tl-tag">Cover</span> Generated document cover page</div>
+    </div>
+
+    <!-- Header + body + footer -->
+    <div class="template-preview">
+      <div class="header-mockup">
+        <div class="header-left">
+          <svg viewBox="0 0 40 40" fill="none" width="22" height="22">
+      <rect width="40" height="40" rx="10" fill="url(#forgeGrad)"/>
+      <path d="M9 16C9 14.34 10.34 13 12 13H17L22 18V26C22 27.66 20.66 29 19 29H12C10.34 29 9 27.66 9 26V16Z" fill="white" fill-opacity="0.35"/>
+      <path d="M13 15C13 13.34 14.34 12 16 12H22L28 18V27C28 28.66 26.66 30 25 30H16C14.34 30 13 28.66 13 27V15Z" fill="white" fill-opacity="0.55"/>
+      <path d="M17 14C17 12.34 18.34 11 20 11H26L32 17V28C32 29.66 30.66 31 29 31H20C18.34 31 17 29.66 17 28V14Z" fill="white" fill-opacity="0.92"/>
+      <path d="M26 11L32 17H28C26.34 17 26 16.16 26 14.5V11Z" fill="white" fill-opacity="0.55"/>
+      <path d="M21 23H29" stroke="url(#emberGrad)" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M21 25.5H27" stroke="url(#emberGrad)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+          <span>BriefKit</span>
+        </div>
+        <div class="header-right">Risk Register &nbsp;·&nbsp; v1.0</div>
+      </div>
+      <div class="doc-body-mockup">
+        <h4>3. Risk Assessment</h4>
+        <div class="mock-line"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line"></div>
+      </div>
+      <div class="footer-mockup">
+        <span>BriefKit &nbsp;·&nbsp; Confidential</span>
+        <span>Page 7 of 24</span>
+      </div>
+      <div class="template-label"><span class="tl-tag">Layout</span> Header, body &amp; footer</div>
+    </div>
+
+    <!-- Stage progress component -->
+    <div class="template-preview">
+      <div class="stage-mockup">
+        <div class="stage-header">
+          <svg viewBox="0 0 40 40" fill="none" width="20" height="20">
+      <rect width="40" height="40" rx="10" fill="url(#forgeGrad)"/>
+      <path d="M9 16C9 14.34 10.34 13 12 13H17L22 18V26C22 27.66 20.66 29 19 29H12C10.34 29 9 27.66 9 26V16Z" fill="white" fill-opacity="0.35"/>
+      <path d="M13 15C13 13.34 14.34 12 16 12H22L28 18V27C28 28.66 26.66 30 25 30H16C14.34 30 13 28.66 13 27V15Z" fill="white" fill-opacity="0.55"/>
+      <path d="M17 14C17 12.34 18.34 11 20 11H26L32 17V28C32 29.66 30.66 31 29 31H20C18.34 31 17 29.66 17 28V14Z" fill="white" fill-opacity="0.92"/>
+      <path d="M26 11L32 17H28C26.34 17 26 16.16 26 14.5V11Z" fill="white" fill-opacity="0.55"/>
+      <path d="M21 23H29" stroke="url(#emberGrad)" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M21 25.5H27" stroke="url(#emberGrad)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+          <span>Build Progress</span>
+        </div>
+        <div class="stage-progress">
+          <div class="stage-step"><div class="stage-dot complete">1</div><span class="stage-label">Discover</span></div>
+          <div class="stage-step"><div class="stage-dot complete">2</div><span class="stage-label">Define</span></div>
+          <div class="stage-step"><div class="stage-dot active">3</div><span class="stage-label active-label">Structure</span></div>
+          <div class="stage-step"><div class="stage-dot pending">4</div><span class="stage-label">Stakeholders</span></div>
+          <div class="stage-step"><div class="stage-dot pending">5</div><span class="stage-label">Risk</span></div>
+          <div class="stage-step"><div class="stage-dot pending">6</div><span class="stage-label">Package</span></div>
+        </div>
+        <div class="stage-artifacts">
+          <div class="artifact-chip generated"><span class="chip-icon">✓</span> Project Brief</div>
+          <div class="artifact-chip generated"><span class="chip-icon">✓</span> Charter</div>
+          <div class="artifact-chip generated"><span class="chip-icon">✓</span> Scope</div>
+          <div class="artifact-chip"><span class="chip-icon">◌</span> WBS</div>
+          <div class="artifact-chip"><span class="chip-icon">◌</span> Budget</div>
+        </div>
+      </div>
+      <div class="template-label"><span class="tl-tag">Component</span> Stage progress &amp; artifacts</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══ JOURNEY ═══ -->
+<section id="journey">
+  <div class="section-label">05 — The Journey</div>
+  <h2 class="section-title">The 6-Stage Journey</h2>
+  <p class="section-desc">Every project passes through six stages — from a rough idea to a complete, downloadable documentation package ready for kickoff.</p>
+
+  <div class="journey-flow">
+    <div class="journey-stage">
+      <div class="journey-num">01</div>
+      <h4>Discover &amp; Intake</h4>
+      <p>Understand the idea, context, and goals</p>
+    </div>
+    <div class="journey-stage">
+      <div class="journey-num">02</div>
+      <h4>Define &amp; Scope</h4>
+      <p>Charter, objectives, success criteria</p>
+    </div>
+    <div class="journey-stage">
+      <div class="journey-num">03</div>
+      <h4>Structure &amp; Plan</h4>
+      <p>WBS, schedule, budget, resources</p>
+    </div>
+    <div class="journey-stage">
+      <div class="journey-num">04</div>
+      <h4>Stakeholders</h4>
+      <p>RACI, comms plan, governance</p>
+    </div>
+    <div class="journey-stage">
+      <div class="journey-num">05</div>
+      <h4>Risk &amp; Quality</h4>
+      <p>Risk register, quality &amp; change plans</p>
+    </div>
+    <div class="journey-stage">
+      <div class="journey-num">06</div>
+      <h4>Package &amp; Kickoff</h4>
+      <p>SOW, kickoff deck, .zip download</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="site-footer">
+  <div class="footer-logo">
+    <svg viewBox="0 0 40 40" fill="none" width="24" height="24">
+      <rect width="40" height="40" rx="10" fill="url(#forgeGrad)"/>
+      <path d="M9 16C9 14.34 10.34 13 12 13H17L22 18V26C22 27.66 20.66 29 19 29H12C10.34 29 9 27.66 9 26V16Z" fill="white" fill-opacity="0.35"/>
+      <path d="M13 15C13 13.34 14.34 12 16 12H22L28 18V27C28 28.66 26.66 30 25 30H16C14.34 30 13 28.66 13 27V15Z" fill="white" fill-opacity="0.55"/>
+      <path d="M17 14C17 12.34 18.34 11 20 11H26L32 17V28C32 29.66 30.66 31 29 31H20C18.34 31 17 29.66 17 28V14Z" fill="white" fill-opacity="0.92"/>
+      <path d="M26 11L32 17H28C26.34 17 26 16.16 26 14.5V11Z" fill="white" fill-opacity="0.55"/>
+      <path d="M21 23H29" stroke="url(#emberGrad)" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M21 25.5H27" stroke="url(#emberGrad)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+    <span>BriefKit</span>
+  </div>
+  <p>Your brief, fully equipped. A conversational AI that transforms your project ideas into complete, professional documentation packages.</p>
+  <div class="footer-meta">Brand Kit v1.0 &nbsp;·&nbsp; February 2026 &nbsp;·&nbsp; All assets included</div>
+</div>
+
+</body>
+</html>

@@ -2,6 +2,7 @@
 
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ProgressBar } from "@/components/layout/progress-bar";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ArtifactSidebar } from "@/components/sidebar/artifact-sidebar";
 import { SessionExpiredOverlay } from "@/components/auth/session-expired";
 import { useSession } from "@/hooks/use-session";
@@ -27,8 +28,15 @@ export function AppShell() {
         </div>
       </div>
 
-      {/* Bottom: Progress bar */}
-      <ProgressBar />
+      {/* Bottom: Progress bar + theme toggle */}
+      <div className="flex items-center border-t bg-background">
+        <div className="flex items-center px-3">
+          <ThemeToggle />
+        </div>
+        <div className="flex-1">
+          <ProgressBar />
+        </div>
+      </div>
     </div>
   );
 }
