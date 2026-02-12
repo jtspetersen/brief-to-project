@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(git --version:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npx shadcn@latest init:*)"
+    ]
+  }
+}
