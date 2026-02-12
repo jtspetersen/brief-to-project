@@ -15,9 +15,12 @@ export interface ParseResult {
   cleanText: string;
   /** Any artifacts found in the message */
   artifacts: ParsedArtifact[];
+  /** If the AI signals a stage transition, the new stage number */
+  stageTransition: StageNumber | null;
 }
 
 const ARTIFACT_REGEX = /```artifact\s*\n([\s\S]*?)```/g;
+const STAGE_REGEX = /\[STAGE:(\d)\]/g;
 
 /**
  * Parse a message for artifact blocks.
@@ -44,9 +47,20 @@ export function parseMessageForArtifacts(text: string): ParseResult {
     return ""; // Remove successfully parsed artifact blocks from display
   });
 
+  // Detect stage transition markers like [STAGE:2]
+  let stageTransition: StageNumber | null = null;
+  const finalText = cleanText.replace(STAGE_REGEX, (_match, num: string) => {
+    const stage = parseInt(num, 10);
+    if (stage >= 1 && stage <= 6) {
+      stageTransition = stage as StageNumber;
+    }
+    return ""; // Remove marker from display
+  });
+
   return {
-    cleanText: cleanText.trim(),
+    cleanText: finalText.trim(),
     artifacts,
+    stageTransition,
   };
 }
 

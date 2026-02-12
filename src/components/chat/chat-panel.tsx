@@ -14,7 +14,7 @@ import {
 import { Send, Loader2, AlertCircle } from "lucide-react";
 
 export function ChatPanel() {
-  const { state, addArtifact, updateArtifact } = useSession();
+  const { state, addArtifact, updateArtifact, setStage } = useSession();
   const { messages, sendMessage, status, error } = useChat({
     body: { currentStage: state.currentStage },
   });
@@ -44,7 +44,7 @@ export function ChatPanel() {
         .map((p) => p.text)
         .join("");
 
-      const { artifacts } = parseMessageForArtifacts(rawText);
+      const { artifacts, stageTransition } = parseMessageForArtifacts(rawText);
 
       for (const parsed of artifacts) {
         const key = `${parsed.type}-${message.id}`;
@@ -63,8 +63,17 @@ export function ChatPanel() {
           addArtifact(toArtifact(parsed));
         }
       }
+
+      // Handle stage transitions
+      if (stageTransition) {
+        const transitionKey = `stage-${stageTransition}-${message.id}`;
+        if (!processedArtifactsRef.current.has(transitionKey)) {
+          processedArtifactsRef.current.add(transitionKey);
+          setStage(stageTransition);
+        }
+      }
     }
-  }, [messages, status, state.artifacts, addArtifact, updateArtifact]);
+  }, [messages, status, state.artifacts, addArtifact, updateArtifact, setStage]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
