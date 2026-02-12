@@ -45,6 +45,14 @@ export function ChatPanel() {
   const processedArtifactsRef = useRef<Set<string>>(new Set());
 
   const isLoading = status === "submitted" || status === "streaming";
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Re-focus the input after the AI finishes responding
+  useEffect(() => {
+    if (status === "ready") {
+      inputRef.current?.focus();
+    }
+  }, [status]);
 
   // Smart auto-scroll: only scroll to bottom when user is already near the bottom
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -122,8 +130,11 @@ export function ChatPanel() {
   }, [state.currentStage, state.artifacts]);
 
   const handleAdvanceStage = () => {
-    if (nextStage >= 2 && nextStage <= 6) {
+    if (nextStage >= 2 && nextStage <= 6 && nextStageInfo) {
       setStage(nextStage);
+      sendMessage({
+        text: `Let's move on to Stage ${nextStage}: ${nextStageInfo.description}.`,
+      });
     }
   };
 
@@ -213,6 +224,7 @@ export function ChatPanel() {
       <div className="border-t px-6 py-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Describe your project idea..."
