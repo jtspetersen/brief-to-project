@@ -1,10 +1,9 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "@/components/chat/message-bubble";
 import { useSession } from "@/hooks/use-session";
 import {
@@ -24,10 +23,23 @@ export function ChatPanel() {
 
   const isLoading = status === "submitted" || status === "streaming";
 
-  // Auto-scroll: ref to the bottom of the message list
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Smart auto-scroll: only scroll to bottom when user is already near the bottom
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollAnchorRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    // Consider "near bottom" if within 100px of the bottom
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    shouldAutoScrollRef.current = isNearBottom;
+  }, []);
+
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (shouldAutoScrollRef.current) {
+      scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   // Detect artifacts in completed AI messages and add to session state
@@ -46,10 +58,20 @@ export function ChatPanel() {
 
       const { artifacts, stageTransition } = parseMessageForArtifacts(rawText);
 
+      // Debug: log what the parser found (remove after debugging)
+      if (artifacts.length > 0 || rawText.includes("artifact")) {
+        console.log("[Artifact Debug] Message ID:", message.id);
+        console.log("[Artifact Debug] Raw text (first 500 chars):", rawText.slice(0, 500));
+        console.log("[Artifact Debug] Parsed artifacts:", artifacts);
+        console.log("[Artifact Debug] Has ```artifact block:", rawText.includes("```artifact"));
+      }
+
       for (const parsed of artifacts) {
         const key = `${parsed.type}-${message.id}`;
         if (processedArtifactsRef.current.has(key)) continue;
         processedArtifactsRef.current.add(key);
+
+        console.log("[Artifact Debug] Adding artifact:", parsed.type, parsed.title);
 
         // Check if this artifact type already exists (it's an update)
         const existing = state.artifacts.find((a) => a.type === parsed.type);
@@ -96,7 +118,11 @@ export function ChatPanel() {
       </div>
 
       {/* Message area */}
-      <ScrollArea className="flex-1 px-6 py-4">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-6 py-4"
+      >
         {!hasMessages ? (
           /* Welcome state — shown before any messages */
           <div className="flex h-full items-center justify-center">
@@ -127,10 +153,10 @@ export function ChatPanel() {
             )}
 
             {/* Scroll anchor */}
-            <div ref={scrollRef} />
+            <div ref={scrollAnchorRef} />
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Error message */}
       {error && (

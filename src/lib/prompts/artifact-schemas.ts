@@ -12,14 +12,14 @@ export const ARTIFACT_SCHEMAS = `## Artifact Output Format
 
 When generating an artifact, wrap it in a fenced code block tagged "artifact":
 
-\\\`\\\`\\\`artifact
+\`\`\`artifact
 {
   "type": "<artifact-type>",
   "title": "<Document Title>",
   "stage": <stage-number>,
   "data": { ... }
 }
-\\\`\\\`\\\`
+\`\`\`
 
 ### Stage 1 Artifact Schemas
 
