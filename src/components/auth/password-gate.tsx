@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Lock, Loader2 } from "lucide-react";
@@ -18,13 +18,20 @@ interface PasswordGateProps {
  * (but will need to for a new browser tab/session).
  */
 export function PasswordGate({ children }: PasswordGateProps) {
-  const [authenticated, setAuthenticated] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return sessionStorage.getItem(SESSION_KEY) === "true";
-  });
+  // Start as false to avoid hydration mismatch — sessionStorage is client-only
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Check sessionStorage after mount (client-side only)
+  useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY) === "true") {
+      setAuthenticated(true);
+    }
+    setChecked(true);
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -51,6 +58,11 @@ export function PasswordGate({ children }: PasswordGateProps) {
       setLoading(false);
     }
   };
+
+  // Don't render anything until we've checked sessionStorage to avoid flash
+  if (!checked) {
+    return null;
+  }
 
   if (authenticated) {
     return <>{children}</>;

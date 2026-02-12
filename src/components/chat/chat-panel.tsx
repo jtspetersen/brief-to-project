@@ -1,7 +1,8 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
+import { DefaultChatTransport } from "ai";
+import { useState, useEffect, useRef, useCallback, useMemo, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageBubble } from "@/components/chat/message-bubble";
@@ -10,13 +11,35 @@ import {
   parseMessageForArtifacts,
   toArtifact,
 } from "@/lib/utils/artifact-parser";
-import { Send, Loader2, AlertCircle } from "lucide-react";
+import { STAGES } from "@/lib/types/stages";
+import type { StageNumber } from "@/lib/types/stages";
+import type { ArtifactType } from "@/lib/types/artifacts";
+import { Send, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+
+/** Which artifact types mark a stage as "complete enough" to offer advancing */
+const STAGE_KEY_ARTIFACTS: Record<number, ArtifactType[]> = {
+  1: ["project-brief"],
+  2: ["charter", "scope-statement"],
+  3: ["wbs"],
+  4: ["stakeholder-register", "raci-matrix"],
+  5: ["risk-register"],
+};
 
 export function ChatPanel() {
   const { state, addArtifact, updateArtifact, setStage } = useSession();
-  const { messages, sendMessage, status, error } = useChat({
-    body: { currentStage: state.currentStage },
-  });
+  // Use a ref so the transport body always reads the latest stage value
+  const currentStageRef = useRef(state.currentStage);
+  currentStageRef.current = state.currentStage;
+
+  const [transport] = useState(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: () => ({ currentStage: currentStageRef.current }),
+      })
+  );
+
+  const { messages, sendMessage, status, error } = useChat({ transport });
   const [input, setInput] = useState("");
   // Track which artifacts we've already processed so we don't add duplicates
   const processedArtifactsRef = useRef<Set<string>>(new Set());
@@ -31,7 +54,6 @@ export function ChatPanel() {
   const handleScroll = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    // Consider "near bottom" if within 100px of the bottom
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     shouldAutoScrollRef.current = isNearBottom;
   }, []);
@@ -58,27 +80,10 @@ export function ChatPanel() {
 
       const { artifacts, stageTransition } = parseMessageForArtifacts(rawText);
 
-      // Debug: log what the parser found (remove after debugging)
-      if (artifacts.length > 0 || rawText.includes("artifact")) {
-        console.log("[Artifact Debug] Message ID:", message.id);
-        console.log("[Artifact Debug] Raw text (first 500 chars):", rawText.slice(0, 500));
-        console.log("[Artifact Debug] Parsed artifacts:", artifacts);
-        console.log("[Artifact Debug] Has ```artifact block:", rawText.includes("```artifact"));
-      }
-
-      let highestArtifactStage = state.currentStage;
-
       for (const parsed of artifacts) {
         const key = `${parsed.type}-${message.id}`;
         if (processedArtifactsRef.current.has(key)) continue;
         processedArtifactsRef.current.add(key);
-
-        console.log("[Artifact Debug] Adding artifact:", parsed.type, parsed.title, "stage:", parsed.stage);
-
-        // Track the highest stage seen in artifacts
-        if (parsed.stage > highestArtifactStage) {
-          highestArtifactStage = parsed.stage;
-        }
 
         // Check if this artifact type already exists (it's an update)
         const existing = state.artifacts.find((a) => a.type === parsed.type);
@@ -93,27 +98,34 @@ export function ChatPanel() {
         }
       }
 
-      // Handle stage transitions — two methods:
-      // 1. Explicit [STAGE:N] marker from AI (primary)
+      // Handle explicit [STAGE:N] markers from AI (kept as secondary method)
       if (stageTransition) {
         const transitionKey = `stage-${stageTransition}-${message.id}`;
         if (!processedArtifactsRef.current.has(transitionKey)) {
           processedArtifactsRef.current.add(transitionKey);
-          console.log("[Stage Debug] Transition marker found:", stageTransition);
           setStage(stageTransition);
-        }
-      }
-      // 2. Auto-advance when artifacts from a later stage are generated (fallback)
-      if (highestArtifactStage > state.currentStage) {
-        const autoKey = `auto-stage-${highestArtifactStage}-${message.id}`;
-        if (!processedArtifactsRef.current.has(autoKey)) {
-          processedArtifactsRef.current.add(autoKey);
-          console.log("[Stage Debug] Auto-advancing to stage", highestArtifactStage, "based on artifact stage");
-          setStage(highestArtifactStage as 1 | 2 | 3 | 4 | 5 | 6);
         }
       }
     }
   }, [messages, status, state.artifacts, addArtifact, updateArtifact, setStage]);
+
+  // Determine if the user can advance to the next stage
+  const nextStage = (state.currentStage + 1) as StageNumber;
+  const nextStageInfo = STAGES.find((s) => s.number === nextStage);
+
+  const canAdvanceStage = useMemo(() => {
+    if (state.currentStage >= 6) return false;
+    const requiredTypes = STAGE_KEY_ARTIFACTS[state.currentStage];
+    if (!requiredTypes) return false;
+    const existingTypes = state.artifacts.map((a) => a.type);
+    return requiredTypes.every((t) => existingTypes.includes(t));
+  }, [state.currentStage, state.artifacts]);
+
+  const handleAdvanceStage = () => {
+    if (nextStage >= 2 && nextStage <= 6) {
+      setStage(nextStage);
+    }
+  };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -142,7 +154,6 @@ export function ChatPanel() {
         className="flex-1 overflow-y-auto px-6 py-4"
       >
         {!hasMessages ? (
-          /* Welcome state — shown before any messages */
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
               <h2 className="text-xl font-semibold">
@@ -156,13 +167,11 @@ export function ChatPanel() {
             </div>
           </div>
         ) : (
-          /* Message list */
           <div className="space-y-4">
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
 
-            {/* Loading indicator before streaming starts */}
             {status === "submitted" && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -170,7 +179,6 @@ export function ChatPanel() {
               </div>
             )}
 
-            {/* Scroll anchor */}
             <div ref={scrollAnchorRef} />
           </div>
         )}
@@ -181,6 +189,23 @@ export function ChatPanel() {
         <div className="mx-6 mb-2 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-2 text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>Something went wrong. Please try again.</p>
+        </div>
+      )}
+
+      {/* Stage advance banner */}
+      {canAdvanceStage && !isLoading && nextStageInfo && (
+        <div className="mx-6 mb-2 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
+          <span className="text-sm">
+            Ready to move on to <strong>Stage {nextStage}: {nextStageInfo.description}</strong>?
+          </span>
+          <Button
+            size="sm"
+            className="ml-3 h-7 text-xs"
+            onClick={handleAdvanceStage}
+          >
+            Continue
+            <ArrowRight className="ml-1 h-3 w-3" />
+          </Button>
         </div>
       )}
 

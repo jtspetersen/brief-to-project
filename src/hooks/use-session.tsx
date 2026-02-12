@@ -6,6 +6,7 @@ import {
   useReducer,
   useState,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import type { SessionState, SessionAction } from "@/lib/types/session";
@@ -19,7 +20,7 @@ const initialState: SessionState = {
   currentStage: 1,
   artifacts: [],
   projectContext: {},
-  startedAt: new Date(),
+  startedAt: new Date(0), // Placeholder — real timestamp set in useEffect
 };
 
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
@@ -62,23 +63,33 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
   const [isExpired, setIsExpired] = useState(false);
+  // Set the real startedAt timestamp after mount to avoid hydration mismatch
+  const startedAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    startedAtRef.current = Date.now();
+    dispatch({ type: "RESET" }); // Sets startedAt to new Date() on client
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only on mount
 
   // Check session timeout every 60 seconds
   useEffect(() => {
+    if (!startedAtRef.current) return;
+
     const checkTimeout = () => {
-      const elapsed = Date.now() - state.startedAt.getTime();
+      const elapsed = Date.now() - startedAtRef.current;
       if (elapsed >= SESSION_TIMEOUT_MS) {
         setIsExpired(true);
       }
     };
 
-    // Check immediately and then every minute
     checkTimeout();
     const interval = setInterval(checkTimeout, 60_000);
     return () => clearInterval(interval);
-  }, [state.startedAt]);
+  }, []);
 
   const resetSession = () => {
+    startedAtRef.current = Date.now();
     dispatch({ type: "RESET" });
     setIsExpired(false);
   };
