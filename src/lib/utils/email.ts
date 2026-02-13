@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResend(): Resend {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 interface DemoRequestEmail {
   name: string;
@@ -27,7 +34,7 @@ export async function sendDemoRequestNotification({
 
   const fromAddress = process.env.RESEND_FROM_EMAIL ?? "BriefKit <onboarding@resend.dev>";
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: fromAddress,
     to: notifyEmail,
     subject: `BriefKit Demo Request: ${name}`,
