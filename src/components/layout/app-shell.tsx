@@ -8,7 +8,7 @@ import { ArtifactSidebar } from "@/components/sidebar/artifact-sidebar";
 import { SessionExpiredOverlay } from "@/components/auth/session-expired";
 import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
-import { FileText, X } from "lucide-react";
+import { FileText } from "lucide-react";
 
 export function AppShell() {
   const { isExpired, resetSession, state } = useSession();
@@ -45,7 +45,7 @@ export function AppShell() {
           <ArtifactSidebar />
         </div>
 
-        {/* Mobile: slide-over overlay */}
+        {/* Mobile: bottom sheet overlay */}
         {sidebarOpen && (
           <div className="absolute inset-0 z-40 md:hidden">
             {/* Backdrop */}
@@ -53,21 +53,10 @@ export function AppShell() {
               className="absolute inset-0 bg-black/30"
               onClick={() => setSidebarOpen(false)}
             />
-            {/* Sidebar panel */}
-            <div className="absolute inset-y-0 right-0 flex w-4/5 max-w-sm flex-col bg-background shadow-xl">
-              <div className="flex items-center justify-end px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setSidebarOpen(false)}
-                  aria-label="Close sidebar"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+            {/* Bottom sheet panel — slides up, full width, 70% height */}
+            <div className="absolute inset-x-0 bottom-0 flex h-[70vh] flex-col rounded-t-2xl bg-background shadow-xl">
               <div className="flex-1 overflow-hidden">
-                <ArtifactSidebar />
+                <ArtifactSidebar onClose={() => setSidebarOpen(false)} />
               </div>
             </div>
           </div>
@@ -85,14 +74,14 @@ export function AppShell() {
         {/* Mobile sidebar toggle button */}
         <div className="flex items-center px-3 md:hidden">
           <Button
-            variant="ghost"
+            variant={sidebarOpen ? "default" : "ghost"}
             size="icon"
             className="relative h-8 w-8"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open documents sidebar"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label={sidebarOpen ? "Close documents sidebar" : "Open documents sidebar"}
           >
             <FileText className="h-4 w-4" />
-            {artifactCount > 0 && (
+            {!sidebarOpen && artifactCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                 {artifactCount}
               </span>

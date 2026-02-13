@@ -7,10 +7,14 @@ import { useSession } from "@/hooks/use-session";
 import { ArtifactCard } from "@/components/sidebar/artifact-card";
 import { ArtifactPreview } from "@/components/sidebar/artifact-preview";
 import type { Artifact } from "@/lib/types/artifacts";
-import { FileText, FolderDown, Loader2 } from "lucide-react";
+import { FileText, FolderDown, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
-export function ArtifactSidebar() {
+interface ArtifactSidebarProps {
+  onClose?: () => void;
+}
+
+export function ArtifactSidebar({ onClose }: ArtifactSidebarProps) {
   const { state } = useSession();
   const [previewArtifact, setPreviewArtifact] = useState<Artifact | null>(null);
   const [bundling, setBundling] = useState(false);
@@ -56,9 +60,20 @@ export function ArtifactSidebar() {
       <div className="flex items-center border-b px-6 py-4">
         <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
         <h2 className="font-display text-lg">Documents</h2>
-        <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
           {artifactCount}
         </span>
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto h-8 w-8"
+            onClick={onClose}
+            aria-label="Close documents"
+          >
+            <X className="h-4 w-4" style={{ color: "#8a602b" }} />
+          </Button>
+        )}
       </div>
 
       {/* Document list */}
