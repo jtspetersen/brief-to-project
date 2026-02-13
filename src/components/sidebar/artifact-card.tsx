@@ -28,7 +28,7 @@ async function downloadArtifact(
   artifact: Artifact,
   format: "docx" | "xlsx",
 ) {
-  const res = await fetch("/api/generate-artifact", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/generate-artifact`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

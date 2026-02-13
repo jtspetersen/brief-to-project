@@ -19,7 +19,7 @@ export function DemoRequestForm() {
     setStatus("submitting");
 
     try {
-      const res = await fetch("/api/request-demo", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/request-demo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message, honeypot }),

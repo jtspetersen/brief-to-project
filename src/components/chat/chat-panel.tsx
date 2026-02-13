@@ -37,7 +37,7 @@ export function ChatPanel() {
   const [transport] = useState(
     () =>
       new DefaultChatTransport({
-        api: "/api/chat",
+        api: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat`,
         body: () => ({ currentStage: currentStageRef.current }),
       })
   );

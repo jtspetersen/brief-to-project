@@ -24,7 +24,7 @@ export function ArtifactSidebar({ onClose }: ArtifactSidebarProps) {
   const handleDownloadAll = async () => {
     setBundling(true);
     try {
-      const res = await fetch("/api/generate-bundle", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/generate-bundle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
