@@ -15,7 +15,8 @@ import {
 import { STAGES } from "@/lib/types/stages";
 import type { StageNumber } from "@/lib/types/stages";
 import type { ArtifactType } from "@/lib/types/artifacts";
-import { Send, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { IconSend } from "@/components/ui/icons";
 import { BriefKitLogo } from "@/components/ui/briefkit-logo";
 
 /** Which artifact types mark a stage as "complete enough" to offer advancing */
@@ -28,7 +29,7 @@ const STAGE_KEY_ARTIFACTS: Record<number, ArtifactType[]> = {
 };
 
 export function ChatPanel() {
-  const { state, addArtifact, updateArtifact, setStage } = useSession();
+  const { state, addArtifact, updateArtifact, updateContext, setStage, touchActivity } = useSession();
   // Use a ref so the transport body always reads the latest stage value
   const currentStageRef = useRef(state.currentStage);
   currentStageRef.current = state.currentStage;
@@ -106,6 +107,12 @@ export function ChatPanel() {
         } else {
           addArtifact(toArtifact(parsed));
         }
+
+        // Extract project name from any artifact that has one (first match wins)
+        const artifactProjectName = parsed.data?.projectName;
+        if (typeof artifactProjectName === "string" && artifactProjectName.trim() && !state.projectContext.name) {
+          updateContext({ name: artifactProjectName.trim() });
+        }
       }
 
       // Handle explicit [STAGE:N] markers from AI (kept as secondary method)
@@ -117,7 +124,7 @@ export function ChatPanel() {
         }
       }
     }
-  }, [messages, status, state.artifacts, addArtifact, updateArtifact, setStage]);
+  }, [messages, status, state.artifacts, state.projectContext.name, addArtifact, updateArtifact, updateContext, setStage]);
 
   // Determine if the user can advance to the next stage
   const nextStage = (state.currentStage + 1) as StageNumber;
@@ -144,6 +151,7 @@ export function ChatPanel() {
     event.preventDefault();
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
+    touchActivity(); // Reset inactivity timer on each message
     sendMessage({ text: trimmed });
     setInput("");
   };
@@ -229,7 +237,13 @@ export function ChatPanel() {
             ref={inputRef}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Describe your project idea..."
+            placeholder={
+              !hasMessages
+                ? "Describe your project idea..."
+                : state.currentStage >= 6
+                  ? "Anything else?"
+                  : "Type your response..."
+            }
             className="flex-1"
             disabled={isLoading}
           />
@@ -241,7 +255,7 @@ export function ChatPanel() {
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <IconSend size={16} />
             )}
           </Button>
         </form>

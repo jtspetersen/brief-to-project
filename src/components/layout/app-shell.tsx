@@ -8,7 +8,7 @@ import { ArtifactSidebar } from "@/components/sidebar/artifact-sidebar";
 import { SessionExpiredOverlay } from "@/components/auth/session-expired";
 import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { IconDocuments } from "@/components/ui/icons";
 
 export function AppShell() {
   const { isExpired, resetSession, state } = useSession();
@@ -80,7 +80,7 @@ export function AppShell() {
             onClick={() => setSidebarOpen((prev) => !prev)}
             aria-label={sidebarOpen ? "Close documents sidebar" : "Open documents sidebar"}
           >
-            <FileText className="h-4 w-4" />
+            <IconDocuments size={16} />
             {!sidebarOpen && artifactCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                 {artifactCount}

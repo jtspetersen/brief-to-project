@@ -3,7 +3,7 @@ import { streamText, type UIMessage } from "ai";
 import { CORE_IDENTITY } from "@/lib/prompts/core-identity";
 import { KNOWLEDGE_BASE } from "@/lib/prompts/knowledge-base";
 import { getStageInstructions } from "@/lib/prompts/stage-instructions";
-import { ARTIFACT_SCHEMAS } from "@/lib/prompts/artifact-schemas";
+import { getArtifactSchemas } from "@/lib/prompts/artifact-schemas";
 import { checkRateLimit, getClientIp } from "@/lib/utils/rate-limiter";
 import { compressConversation } from "@/lib/utils/context-manager";
 import type { StageNumber } from "@/lib/types/stages";
@@ -26,12 +26,12 @@ export async function POST(req: Request) {
     const { messages, currentStage = 1 }: { messages: UIMessage[]; currentStage?: StageNumber } =
       await req.json();
 
-    // Assemble the 4-layer system prompt
+    // Assemble the 4-layer system prompt (stage-aware schemas reduce tokens)
     const systemPrompt = [
       CORE_IDENTITY,
       KNOWLEDGE_BASE,
       getStageInstructions(currentStage),
-      ARTIFACT_SCHEMAS,
+      getArtifactSchemas(currentStage),
     ].join("\n\n---\n\n");
 
     // Convert UIMessage (parts-based) to the format streamText expects
@@ -50,11 +50,22 @@ export async function POST(req: Request) {
       model: anthropic("claude-sonnet-4-5-20250929"),
       system: systemPrompt,
       messages: compressedMessages,
+      maxOutputTokens: 16384,
     });
 
     return result.toUIMessageStreamResponse();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Chat API error:", error);
+
+    // Detect Anthropic rate limit errors and surface them clearly
+    const errMsg = error instanceof Error ? error.message : String(error);
+    if (errMsg.includes("rate_limit") || errMsg.includes("429")) {
+      return new Response(
+        JSON.stringify({ error: "AI service is temporarily busy. Please wait a moment and try again." }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
       { status: 500, headers: { "Content-Type": "application/json" } }

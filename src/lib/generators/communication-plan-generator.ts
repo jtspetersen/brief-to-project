@@ -13,34 +13,26 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface CommunicationPlanData {
-  projectName: string;
-  communications: {
-    audience: string;
-    information: string;
-    frequency: string;
-    channel: string;
-    owner: string;
-  }[];
-}
-
-export async function generateCommunicationPlan(data: CommunicationPlanData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateCommunicationPlan(data: any): Promise<Buffer> {
   const doc = createDocument([
     title("Communication Plan"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Communication Schedule"),
     simpleTable(
       ["Audience", "Information", "Frequency", "Channel", "Owner"],
-      data.communications.map((c) => [
-        c.audience,
-        c.information,
-        c.frequency,
-        c.channel,
-        c.owner,
+      a(data.communications).map((c: any) => [
+        s(c?.audience),
+        s(c?.information),
+        s(c?.frequency),
+        s(c?.channel),
+        s(c?.owner),
       ]),
       [18, 30, 14, 18, 20]
     ),

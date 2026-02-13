@@ -3,10 +3,10 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon } from "lucide-react";
+import { IconLightMode, IconDarkMode } from "@/components/ui/icons";
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch — only render after mount
@@ -24,9 +24,9 @@ export function ThemeToggle() {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (
-        <Sun className="h-4 w-4" />
+        <IconLightMode size={16} />
       ) : (
-        <Moon className="h-4 w-4" />
+        <IconDarkMode size={16} />
       )}
     </Button>
   );

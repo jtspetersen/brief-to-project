@@ -6,21 +6,15 @@
  */
 import ExcelJS from "exceljs";
 
-interface RiskRegisterData {
-  projectName: string;
-  risks: {
-    id: string;
-    category: string;
-    description: string;
-    probability: number;
-    impact: number;
-    score: number;
-    rating: string;
-    mitigation: string;
-    contingency: string;
-    owner: string;
-    status: string;
-  }[];
+/** Safe string — returns '' for null/undefined, otherwise String(val) */
+function s(val: unknown): string {
+  if (val === null || val === undefined) return "";
+  return String(val);
+}
+
+/** Safe array — returns [] for null/undefined, otherwise the array as-is */
+function a<T>(val: T[] | null | undefined): T[] {
+  return Array.isArray(val) ? val : [];
 }
 
 // Colors for risk ratings
@@ -56,7 +50,8 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
   right: { style: "thin", color: { argb: "FFD1D5DB" } },
 };
 
-export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateRiskRegisterXlsx(data: any): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "BriefKit";
 
@@ -67,7 +62,7 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
   // ── Title row ──
   sheet.mergeCells("A1:K1");
   const titleCell = sheet.getCell("A1");
-  titleCell.value = `Risk Register — ${data.projectName}`;
+  titleCell.value = `Risk Register — ${s(data.projectName)}`;
   titleCell.font = { name: "Arial", size: 14, bold: true };
   titleCell.alignment = { horizontal: "center" };
   sheet.getRow(1).height = 30;
@@ -105,19 +100,20 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
   ];
 
   // ── Data rows ──
-  for (const risk of data.risks) {
+  const risks = a<any>(data.risks);
+  for (const risk of risks) {
     const row = sheet.addRow([
-      risk.id,
-      risk.category,
-      risk.description,
-      risk.probability,
-      risk.impact,
-      risk.score,
-      risk.rating,
-      risk.mitigation,
-      risk.contingency,
-      risk.owner,
-      risk.status,
+      s(risk?.id),
+      s(risk?.category),
+      s(risk?.description),
+      risk?.probability ?? "",
+      risk?.impact ?? "",
+      risk?.score ?? "",
+      s(risk?.rating),
+      s(risk?.mitigation),
+      s(risk?.contingency),
+      s(risk?.owner),
+      s(risk?.status),
     ]);
 
     row.eachCell((cell, colNumber) => {
@@ -133,7 +129,7 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
 
     // Color the Rating cell based on risk level
     const ratingCell = row.getCell(7);
-    const ratingColor = RATING_COLORS[risk.rating];
+    const ratingColor = RATING_COLORS[s(risk?.rating)];
     if (ratingColor) {
       ratingCell.fill = {
         type: "pattern",
@@ -141,7 +137,7 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
         fgColor: { argb: `FF${ratingColor}` },
       };
       // Use white text for dark backgrounds
-      if (risk.rating === "High" || risk.rating === "Critical") {
+      if (s(risk?.rating) === "High" || s(risk?.rating) === "Critical") {
         ratingCell.font = { ...BODY_FONT, bold: true, color: { argb: "FFFFFFFF" } };
       } else {
         ratingCell.font = { ...BODY_FONT, bold: true };
@@ -150,7 +146,7 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
 
     // Color the Score cell with a gradient
     const scoreCell = row.getCell(6);
-    const score = risk.score;
+    const score = Number(risk?.score ?? 0);
     let scoreColor = "92D050"; // green
     if (score >= 16) scoreColor = "FF0000";
     else if (score >= 10) scoreColor = "FF6600";
@@ -168,7 +164,7 @@ export async function generateRiskRegisterXlsx(data: RiskRegisterData): Promise<
   }
 
   // ── Legend at bottom ──
-  const legendStartRow = data.risks.length + 4;
+  const legendStartRow = risks.length + 4;
   sheet.getCell(`A${legendStartRow}`).value = "Risk Score Legend:";
   sheet.getCell(`A${legendStartRow}`).font = { ...BODY_FONT, bold: true };
 

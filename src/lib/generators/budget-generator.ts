@@ -16,41 +16,34 @@ import {
   keyValueTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface BudgetData {
-  projectName: string;
-  currency: string;
-  categories: {
-    category: string;
-    lineItems: { item: string; amount: string; notes: string }[];
-    subtotal: string;
-  }[];
-  contingency: { percentage: string; amount: string };
-  totalBudget: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateBudget(data: any): Promise<Buffer> {
+  const contingency = data.contingency ?? {};
 
-export async function generateBudget(data: BudgetData): Promise<Buffer> {
   const content: (Paragraph | Table)[] = [
     title("Budget Estimate"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
-    labeledField("Currency", data.currency),
+    labeledField("Currency", s(data.currency)),
     spacer(),
   ];
 
   // Category breakdowns
-  for (const cat of data.categories) {
-    content.push(heading1(cat.category));
+  for (const cat of a<any>(data.categories)) {
+    content.push(heading1(s(cat?.category)));
     content.push(
       simpleTable(
         ["Item", "Amount", "Notes"],
-        cat.lineItems.map((li) => [li.item, li.amount, li.notes]),
+        a<any>(cat?.lineItems).map((li: any) => [s(li?.item), s(li?.amount), s(li?.notes)]),
         [35, 20, 45]
       )
     );
-    content.push(labeledField("Subtotal", cat.subtotal));
+    content.push(labeledField("Subtotal", s(cat?.subtotal)));
     content.push(spacer());
   }
 
@@ -58,8 +51,8 @@ export async function generateBudget(data: BudgetData): Promise<Buffer> {
   content.push(heading1("Budget Summary"));
   content.push(
     keyValueTable([
-      { key: "Contingency", value: `${data.contingency.percentage} (${data.contingency.amount})` },
-      { key: "Total Budget", value: data.totalBudget },
+      { key: "Contingency", value: `${s(contingency.percentage)} (${s(contingency.amount)})` },
+      { key: "Total Budget", value: s(data.totalBudget) },
     ])
   );
 

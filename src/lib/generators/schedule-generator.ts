@@ -17,62 +17,50 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface ScheduleData {
-  projectName: string;
-  startDate: string;
-  endDate: string;
-  phases: {
-    name: string;
-    startDate: string;
-    endDate: string;
-    milestones: { name: string; date: string }[];
-    dependencies: string[];
-    keyDeliverables: string[];
-  }[];
-  criticalPath: string[];
-}
-
-export async function generateSchedule(data: ScheduleData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateSchedule(data: any): Promise<Buffer> {
   const content: (Paragraph | Table)[] = [
     title("Project Schedule"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
-    labeledField("Project Start", data.startDate),
-    labeledField("Project End", data.endDate),
+    labeledField("Project Start", s(data.startDate)),
+    labeledField("Project End", s(data.endDate)),
     spacer(),
   ];
 
   // Phase details
-  for (const phase of data.phases) {
-    content.push(heading1(phase.name));
-    content.push(labeledField("Start", phase.startDate));
-    content.push(labeledField("End", phase.endDate));
+  for (const phase of a<any>(data.phases)) {
+    content.push(heading1(s(phase?.name)));
+    content.push(labeledField("Start", s(phase?.startDate)));
+    content.push(labeledField("End", s(phase?.endDate)));
 
-    if (phase.milestones.length > 0) {
+    if (a<any>(phase?.milestones).length > 0) {
       content.push(heading2("Milestones"));
       content.push(
         simpleTable(
           ["Milestone", "Target Date"],
-          phase.milestones.map((m) => [m.name, m.date]),
+          a<any>(phase?.milestones).map((m: any) => [s(m?.name), s(m?.date)]),
           [60, 40]
         )
       );
     }
 
-    if (phase.dependencies.length > 0) {
+    if (a<any>(phase?.dependencies).length > 0) {
       content.push(heading2("Dependencies"));
-      for (const dep of phase.dependencies) {
-        content.push(bulletItem(dep));
+      for (const dep of a<any>(phase?.dependencies)) {
+        content.push(bulletItem(s(dep)));
       }
     }
 
-    if (phase.keyDeliverables.length > 0) {
+    if (a<any>(phase?.keyDeliverables).length > 0) {
       content.push(heading2("Key Deliverables"));
-      for (const del of phase.keyDeliverables) {
-        content.push(bulletItem(del));
+      for (const del of a<any>(phase?.keyDeliverables)) {
+        content.push(bulletItem(s(del)));
       }
     }
 
@@ -80,10 +68,10 @@ export async function generateSchedule(data: ScheduleData): Promise<Buffer> {
   }
 
   // Critical Path
-  if (data.criticalPath.length > 0) {
+  if (a(data.criticalPath).length > 0) {
     content.push(heading1("Critical Path"));
-    for (const item of data.criticalPath) {
-      content.push(bulletItem(item));
+    for (const item of a(data.criticalPath)) {
+      content.push(bulletItem(s(item)));
     }
   }
 

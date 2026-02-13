@@ -13,46 +13,32 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface RiskRegisterData {
-  projectName: string;
-  risks: {
-    id: string;
-    category: string;
-    description: string;
-    probability: number;
-    impact: number;
-    score: number;
-    rating: string;
-    mitigation: string;
-    contingency: string;
-    owner: string;
-    status: string;
-  }[];
-}
-
-export async function generateRiskRegister(data: RiskRegisterData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateRiskRegister(data: any): Promise<Buffer> {
   const doc = createDocument([
     title("Risk Register"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Risk Assessment"),
     simpleTable(
       ["ID", "Category", "Description", "P", "I", "Score", "Rating", "Mitigation", "Contingency", "Owner", "Status"],
-      data.risks.map((r) => [
-        r.id,
-        r.category,
-        r.description,
-        String(r.probability),
-        String(r.impact),
-        String(r.score),
-        r.rating,
-        r.mitigation,
-        r.contingency,
-        r.owner,
-        r.status,
+      a(data.risks).map((r: any) => [
+        s(r?.id),
+        s(r?.category),
+        s(r?.description),
+        String(r?.probability ?? ""),
+        String(r?.impact ?? ""),
+        String(r?.score ?? ""),
+        s(r?.rating),
+        s(r?.mitigation),
+        s(r?.contingency),
+        s(r?.owner),
+        s(r?.status),
       ]),
       [5, 8, 14, 4, 4, 5, 7, 17, 14, 10, 7]
     ),

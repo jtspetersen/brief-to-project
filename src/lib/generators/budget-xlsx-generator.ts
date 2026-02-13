@@ -6,16 +6,15 @@
  */
 import ExcelJS from "exceljs";
 
-interface BudgetData {
-  projectName: string;
-  currency: string;
-  categories: {
-    category: string;
-    lineItems: { item: string; amount: string; notes: string }[];
-    subtotal: string;
-  }[];
-  contingency: { percentage: string; amount: string };
-  totalBudget: string;
+/** Safe string — returns '' for null/undefined, otherwise String(val) */
+function s(val: unknown): string {
+  if (val === null || val === undefined) return "";
+  return String(val);
+}
+
+/** Safe array — returns [] for null/undefined, otherwise the array as-is */
+function a<T>(val: T[] | null | undefined): T[] {
+  return Array.isArray(val) ? val : [];
 }
 
 const HEADER_FILL: ExcelJS.FillPattern = {
@@ -61,7 +60,8 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
   right: { style: "thin", color: { argb: "FFD1D5DB" } },
 };
 
-export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateBudgetXlsx(data: any): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "BriefKit";
 
@@ -72,7 +72,7 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
   // ── Title row ──
   sheet.mergeCells("A1:D1");
   const titleCell = sheet.getCell("A1");
-  titleCell.value = `Budget Estimate — ${data.projectName} (${data.currency})`;
+  titleCell.value = `Budget Estimate — ${s(data.projectName)} (${s(data.currency)})`;
   titleCell.font = { name: "Arial", size: 14, bold: true };
   titleCell.alignment = { horizontal: "center" };
   sheet.getRow(1).height = 30;
@@ -99,9 +99,9 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
   ];
 
   // ── Data rows ──
-  for (const cat of data.categories) {
+  for (const cat of a<any>(data.categories)) {
     // Category header row
-    const catRow = sheet.addRow([cat.category, "", ""]);
+    const catRow = sheet.addRow([s(cat?.category), "", ""]);
     catRow.eachCell((cell) => {
       cell.font = { ...BODY_FONT, bold: true, size: 11 };
       cell.fill = CATEGORY_FILL;
@@ -109,8 +109,8 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
     });
 
     // Line items
-    for (const item of cat.lineItems) {
-      const itemRow = sheet.addRow([`    ${item.item}`, item.amount, item.notes]);
+    for (const item of a<any>(cat?.lineItems)) {
+      const itemRow = sheet.addRow([`    ${s(item?.item)}`, s(item?.amount), s(item?.notes)]);
       itemRow.eachCell((cell, colNumber) => {
         cell.font = BODY_FONT;
         cell.border = THIN_BORDER;
@@ -121,7 +121,7 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
     }
 
     // Subtotal row
-    const subRow = sheet.addRow([`  Subtotal: ${cat.category}`, cat.subtotal, ""]);
+    const subRow = sheet.addRow([`  Subtotal: ${s(cat?.category)}`, s(cat?.subtotal), ""]);
     subRow.eachCell((cell, colNumber) => {
       cell.font = { ...BODY_FONT, bold: true };
       cell.fill = SUBTOTAL_FILL;
@@ -136,9 +136,10 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
   sheet.addRow([]);
 
   // ── Contingency row ──
+  const contingency = data.contingency ?? {};
   const contRow = sheet.addRow([
-    `Contingency (${data.contingency.percentage})`,
-    data.contingency.amount,
+    `Contingency (${s(contingency.percentage)})`,
+    s(contingency.amount),
     "",
   ]);
   contRow.eachCell((cell, colNumber) => {
@@ -150,7 +151,7 @@ export async function generateBudgetXlsx(data: BudgetData): Promise<Buffer> {
   });
 
   // ── Grand Total row ──
-  const totalRow = sheet.addRow(["TOTAL PROJECT BUDGET", data.totalBudget, ""]);
+  const totalRow = sheet.addRow(["TOTAL PROJECT BUDGET", s(data.totalBudget), ""]);
   totalRow.eachCell((cell, colNumber) => {
     cell.font = { name: "Arial", size: 12, bold: true, color: { argb: "FFFFFFFF" } };
     cell.fill = TOTAL_FILL;

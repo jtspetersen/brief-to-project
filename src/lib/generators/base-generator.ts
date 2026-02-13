@@ -415,6 +415,21 @@ export function createDocument(children: (Paragraph | Table)[]): Document {
   });
 }
 
+// ── Safe data helpers ────────────────────────────────────────────────
+// AI-generated artifact data may have missing fields. These helpers
+// prevent crashes when a field is null/undefined.
+
+/** Safe string — returns '' for null/undefined, otherwise String(val) */
+export function s(val: unknown): string {
+  if (val === null || val === undefined) return "";
+  return String(val);
+}
+
+/** Safe array — returns [] for null/undefined, otherwise the array as-is */
+export function a<T>(val: T[] | null | undefined): T[] {
+  return Array.isArray(val) ? val : [];
+}
+
 // ── Re-exports for convenience ──────────────────────────────────────
 // Generators can import everything they need from base-generator
 

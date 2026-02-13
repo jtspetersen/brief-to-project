@@ -90,7 +90,10 @@ function findStageTransitionIndex(
 
 /**
  * Build a structured summary from older messages.
- * Extracts all artifact JSON blocks and summarizes the conversation.
+ *
+ * Uses compact TEXT bullet-point summaries instead of raw JSON dumps.
+ * This is critical: raw JSON in the context causes the AI to mimic
+ * unfenced JSON output, which the artifact parser can't detect.
  */
 function buildStageSummary(messages: SimpleMessage[]): string {
   const sections: string[] = [];
@@ -119,15 +122,14 @@ function buildStageSummary(messages: SimpleMessage[]): string {
     artifactsByStage.set(artifact.stage, existing);
   }
 
-  // Build summary sections
+  // Build compact text summaries — NO raw JSON to prevent format mimicry
   for (const [stage, artifacts] of Array.from(artifactsByStage.entries()).sort(
     (a, b) => a[0] - b[0]
   )) {
     sections.push(`## Stage ${stage} Artifacts`);
     for (const artifact of artifacts) {
-      sections.push(
-        `### ${artifact.title}\n\`\`\`json\n${JSON.stringify(artifact.data, null, 2)}\n\`\`\``
-      );
+      const summary = summarizeArtifactData(artifact.data);
+      sections.push(`**${artifact.title}** (type: ${artifact.type})\n${summary}`);
     }
   }
 
@@ -150,5 +152,68 @@ function buildStageSummary(messages: SimpleMessage[]): string {
     }
   }
 
+  // Reinforce the correct artifact output format (the AI just saw text
+  // summaries above, so remind it to use fenced blocks for NEW artifacts)
+  sections.push(
+    "## Reminder: Artifact Output Format\nWhen generating new artifacts, you MUST use a fenced code block:\n```artifact\n{ \"type\": \"...\", \"title\": \"...\", \"stage\": N, \"data\": { ... } }\n```\nDo NOT output artifact JSON without the fenced code block wrapper."
+  );
+
   return sections.join("\n\n");
+}
+
+/**
+ * Create a compact text summary of artifact data.
+ * Extracts key fields as bullet points — no raw JSON.
+ *
+ * This prevents the AI from seeing unfenced JSON in the context
+ * and mimicking that format instead of using ```artifact fencing.
+ */
+function summarizeArtifactData(data: Record<string, unknown>): string {
+  const lines: string[] = [];
+  const MAX_LINES = 10;
+  const MAX_STR = 300;
+
+  for (const [key, val] of Object.entries(data)) {
+    if (lines.length >= MAX_LINES) break;
+    if (val == null) continue;
+
+    if (typeof val === "string") {
+      lines.push(`${key}: ${val.length > MAX_STR ? val.slice(0, MAX_STR) + "…" : val}`);
+    } else if (typeof val === "number" || typeof val === "boolean") {
+      lines.push(`${key}: ${val}`);
+    } else if (Array.isArray(val)) {
+      if (val.length === 0) continue;
+      if (typeof val[0] === "string") {
+        const joined = val.join("; ");
+        lines.push(`${key}: ${joined.length > MAX_STR ? joined.slice(0, MAX_STR) + "…" : joined}`);
+      } else if (typeof val[0] === "object" && val[0] !== null) {
+        // Array of objects — show primary fields from first few items
+        const previews = val.slice(0, 5).map((item: unknown) => {
+          const obj = item as Record<string, unknown>;
+          const label = obj.name ?? obj.item ?? obj.deliverable ?? obj.description ??
+            obj.role ?? obj.risk ?? obj.check ?? obj.audience ?? obj.topic ??
+            obj.objective ?? obj.benefit ?? obj.milestone ?? obj.id ?? "";
+          return String(label).slice(0, 80);
+        });
+        const more = val.length > 5 ? ` (+${val.length - 5} more)` : "";
+        lines.push(`${key} (${val.length}): ${previews.join("; ")}${more}`);
+      }
+    } else if (typeof val === "object") {
+      // Nested object — summarize its key fields compactly
+      const parts: string[] = [];
+      for (const [subKey, subVal] of Object.entries(val as Record<string, unknown>)) {
+        if (typeof subVal === "string" && subVal.length > 0) {
+          parts.push(`${subKey}: ${subVal.length > 100 ? subVal.slice(0, 100) + "…" : subVal}`);
+        } else if (Array.isArray(subVal)) {
+          parts.push(`${subKey}: ${subVal.length} items`);
+        }
+        if (parts.length >= 4) break;
+      }
+      if (parts.length > 0) {
+        lines.push(`${key}: { ${parts.join(", ")} }`);
+      }
+    }
+  }
+
+  return lines.map(l => `  - ${l}`).join("\n");
 }

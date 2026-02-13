@@ -2,10 +2,11 @@
  * Layer 4: Artifact Schemas
  *
  * Defines HOW the AI should output structured data for each artifact type.
- * These JSON schemas tell the AI exactly what fields to include when
- * generating an artifact, so the frontend can parse and render them.
+ * Only sends schemas relevant to the current stage (+ next stage) to reduce tokens.
  */
-export const ARTIFACT_SCHEMAS = `## Artifact Output Format
+import type { StageNumber } from "@/lib/types/stages";
+
+const SCHEMA_HEADER = `## Artifact Output Format
 
 When generating an artifact, wrap it in a fenced code block tagged "artifact":
 
@@ -18,450 +19,247 @@ When generating an artifact, wrap it in a fenced code block tagged "artifact":
 }
 \`\`\`
 
-### Stage 1 Artifact Schemas
+## Data Completeness Rules
+
+- Fields marked "if known" can be omitted or set to "TBD" if the user hasn't provided the info
+- For stakeholder names, company names, and other specific identifiers: use role-based placeholders (e.g., "Project Sponsor", "Engineering Lead") unless the user has provided actual names
+- Never invent specific names, companies, or figures — use generic role titles or "[To be confirmed]" instead
+- It is OK to leave sections partially complete; the user can refine later
+`;
+
+const STAGE_1_SCHEMAS = `### Stage 1 Schemas
 
 #### project-brief
-{
-  "type": "project-brief",
-  "title": "Project Brief — <Project Name>",
-  "stage": 1,
-  "data": {
-    "projectName": "string",
-    "projectSponsor": "string",
-    "date": "string (YYYY-MM-DD)",
-    "problemStatement": "string — What problem or opportunity does this address?",
-    "projectDescription": "string — 2-3 sentence overview of what will be delivered",
-    "businessDrivers": ["string — Why now? What's driving this?"],
-    "objectives": ["string — High-level project objectives"],
-    "estimatedBudget": "string — e.g., '$850,000'",
-    "estimatedTimeline": "string — e.g., '8 months'",
-    "estimatedTeamSize": "string — e.g., '12-15 people'",
-    "keyStakeholders": ["string — Name and role"],
-    "initialRisks": ["string — Any early-identified risks"],
-    "methodology": "string — Recommended approach (Agile, Waterfall, Hybrid)",
-    "successCriteria": ["string — How will we know it succeeded?"]
-  }
-}
+{ "type": "project-brief", "stage": 1, "data": {
+  "projectName": "string",
+  "projectSponsor": "string (if known)",
+  "date": "string (YYYY-MM-DD)",
+  "problemStatement": "string",
+  "projectDescription": "string — 2-3 sentence overview",
+  "businessDrivers": ["string"],
+  "objectives": ["string — high-level"],
+  "estimatedBudget": "string",
+  "estimatedTimeline": "string",
+  "estimatedTeamSize": "string",
+  "keyStakeholders": ["string — name/role if known"],
+  "initialRisks": ["string"],
+  "methodology": "string — Agile | Waterfall | Hybrid",
+  "successCriteria": ["string"]
+}}
 
 #### project-classification
-{
-  "type": "project-classification",
-  "title": "Project Classification — <Project Name>",
-  "stage": 1,
-  "data": {
-    "projectName": "string",
-    "projectType": "string — e.g., 'Software / Digital'",
-    "industry": "string — e.g., 'E-commerce / Retail'",
-    "methodology": "string — Agile | Waterfall | Hybrid",
-    "methodologyRationale": "string — Why this methodology fits",
-    "complexity": "string — Small | Medium | Large | Enterprise",
-    "complexityFactors": {
-      "budget": "string — range and assessment",
-      "timeline": "string — duration and assessment",
-      "teamSize": "string — size and assessment",
-      "stakeholderCount": "string — count and assessment"
-    },
-    "keyCharacteristics": ["string — Notable project characteristics"],
-    "recommendedArtifacts": ["string — Which documents are most important for this project type"]
-  }
-}
+{ "type": "project-classification", "stage": 1, "data": {
+  "projectName": "string",
+  "projectType": "string",
+  "industry": "string",
+  "methodology": "string",
+  "methodologyRationale": "string",
+  "complexity": "string — Small | Medium | Large | Enterprise",
+  "complexityFactors": { "budget": "string", "timeline": "string", "teamSize": "string", "stakeholderCount": "string" },
+  "keyCharacteristics": ["string"],
+  "recommendedArtifacts": ["string"]
+}}`;
 
-### Stage 2 Artifact Schemas (Define & Scope)
+const STAGE_2_SCHEMAS = `### Stage 2 Schemas
 
 #### charter
-{
-  "type": "charter",
-  "title": "Project Charter — <Project Name>",
-  "stage": 2,
-  "data": {
-    "projectName": "string",
-    "projectSponsor": "string",
-    "projectManager": "string",
-    "date": "string",
-    "executiveSummary": "string",
-    "businessCase": {
-      "problemStatement": "string",
-      "strategicAlignment": "string",
-      "expectedBenefits": ["string"],
-      "costBenefitSummary": "string"
-    },
-    "objectives": [{ "objective": "string", "measure": "string", "target": "string" }],
-    "scope": {
-      "inScope": ["string"],
-      "outOfScope": ["string"],
-      "assumptions": ["string"],
-      "constraints": ["string"]
-    },
-    "milestones": [{ "milestone": "string", "targetDate": "string" }],
-    "budget": { "estimated": "string", "contingency": "string", "fundingSource": "string" },
-    "risks": [{ "risk": "string", "impact": "string", "mitigation": "string" }],
-    "approvers": [{ "name": "string", "role": "string" }]
-  }
-}
+{ "type": "charter", "stage": 2, "data": {
+  "projectName": "string",
+  "projectSponsor": "string (if known)",
+  "projectManager": "string (if known)",
+  "date": "string",
+  "executiveSummary": "string",
+  "businessCase": { "problemStatement": "string", "strategicAlignment": "string", "expectedBenefits": ["string"], "costBenefitSummary": "string" },
+  "objectives": [{ "objective": "string", "measure": "string", "target": "string" }],
+  "scope": { "inScope": ["string"], "outOfScope": ["string"], "assumptions": ["string"], "constraints": ["string"] },
+  "milestones": [{ "milestone": "string", "targetDate": "string" }],
+  "budget": { "estimated": "string", "contingency": "string", "fundingSource": "string (if known)" },
+  "risks": [{ "risk": "string", "impact": "string", "mitigation": "string" }],
+  "approvers": [{ "name": "string (or role)", "role": "string" }]
+}}
 
 #### scope-statement
-{
-  "type": "scope-statement",
-  "title": "Scope Statement — <Project Name>",
-  "stage": 2,
-  "data": {
-    "projectName": "string",
-    "projectObjective": "string",
-    "inScope": [{ "item": "string", "description": "string" }],
-    "outOfScope": [{ "item": "string", "rationale": "string" }],
-    "deliverables": [{ "deliverable": "string", "description": "string", "acceptanceCriteria": "string" }],
-    "assumptions": ["string"],
-    "constraints": ["string"]
-  }
-}
+{ "type": "scope-statement", "stage": 2, "data": {
+  "projectName": "string",
+  "projectObjective": "string",
+  "inScope": [{ "item": "string", "description": "string" }],
+  "outOfScope": [{ "item": "string", "rationale": "string" }],
+  "deliverables": [{ "deliverable": "string", "description": "string", "acceptanceCriteria": "string" }],
+  "assumptions": ["string"],
+  "constraints": ["string"]
+}}
 
 #### business-case
-{
-  "type": "business-case",
-  "title": "Business Case — <Project Name>",
-  "stage": 2,
-  "data": {
-    "projectName": "string",
-    "executiveSummary": "string",
-    "problemStatement": "string",
-    "proposedSolution": "string",
-    "benefits": [{ "benefit": "string", "type": "string (tangible|intangible)", "estimatedValue": "string" }],
-    "costs": [{ "category": "string", "amount": "string", "notes": "string" }],
-    "roi": "string",
-    "risks": ["string"],
-    "recommendation": "string"
-  }
-}
+{ "type": "business-case", "stage": 2, "data": {
+  "projectName": "string",
+  "executiveSummary": "string",
+  "problemStatement": "string",
+  "proposedSolution": "string",
+  "benefits": [{ "benefit": "string", "type": "tangible|intangible", "estimatedValue": "string (if known)" }],
+  "costs": [{ "category": "string", "amount": "string", "notes": "string" }],
+  "roi": "string (if calculable)",
+  "risks": ["string"],
+  "recommendation": "string"
+}}
 
 #### success-criteria
-{
-  "type": "success-criteria",
-  "title": "Success Criteria & KPIs — <Project Name>",
-  "stage": 2,
-  "data": {
-    "projectName": "string",
-    "kpis": [{
-      "name": "string",
-      "description": "string",
-      "baseline": "string",
-      "target": "string",
-      "measurementMethod": "string",
-      "frequency": "string"
-    }]
-  }
-}
+{ "type": "success-criteria", "stage": 2, "data": {
+  "projectName": "string",
+  "kpis": [{ "name": "string", "description": "string", "baseline": "string (if known)", "target": "string", "measurementMethod": "string", "frequency": "string" }]
+}}`;
 
-### Stage 3 Artifact Schemas (Structure & Plan)
+const STAGE_3_SCHEMAS = `### Stage 3 Schemas
 
 #### wbs
-{
-  "type": "wbs",
-  "title": "Work Breakdown Structure — <Project Name>",
-  "stage": 3,
-  "data": {
-    "projectName": "string",
-    "methodology": "string — Agile | Waterfall | Hybrid",
-    "deliverables": [{
-      "id": "string — e.g., '1.0'",
-      "name": "string — deliverable name",
-      "workPackages": [{
-        "id": "string — e.g., '1.1'",
-        "name": "string",
-        "tasks": [{
-          "id": "string — e.g., '1.1.1'",
-          "name": "string",
-          "estimatedEffort": "string — e.g., '40 hours'",
-          "estimatedDuration": "string — e.g., '2 weeks'",
-          "owner": "string — role or person"
-        }]
-      }]
-    }]
-  }
-}
+{ "type": "wbs", "stage": 3, "data": {
+  "projectName": "string",
+  "methodology": "string",
+  "deliverables": [{ "id": "string (e.g. 1.0)", "name": "string", "workPackages": [{ "id": "string (e.g. 1.1)", "name": "string", "tasks": [{ "id": "string (e.g. 1.1.1)", "name": "string", "estimatedEffort": "string", "estimatedDuration": "string", "owner": "string (role)" }] }] }]
+}}
 
 #### schedule
-{
-  "type": "schedule",
-  "title": "Project Schedule — <Project Name>",
-  "stage": 3,
-  "data": {
-    "projectName": "string",
-    "startDate": "string",
-    "endDate": "string",
-    "phases": [{
-      "name": "string",
-      "startDate": "string",
-      "endDate": "string",
-      "milestones": [{ "name": "string", "date": "string" }],
-      "dependencies": ["string — what must complete before this phase"],
-      "keyDeliverables": ["string"]
-    }],
-    "criticalPath": ["string — phases/tasks on the critical path"]
-  }
-}
+{ "type": "schedule", "stage": 3, "data": {
+  "projectName": "string",
+  "startDate": "string",
+  "endDate": "string",
+  "phases": [{ "name": "string", "startDate": "string", "endDate": "string", "milestones": [{ "name": "string", "date": "string" }], "dependencies": ["string"], "keyDeliverables": ["string"] }],
+  "criticalPath": ["string"]
+}}
 
 #### budget
-{
-  "type": "budget",
-  "title": "Budget Estimate — <Project Name>",
-  "stage": 3,
-  "data": {
-    "projectName": "string",
-    "currency": "string — e.g., 'USD'",
-    "categories": [{
-      "category": "string — e.g., 'Personnel', 'Tools & Licenses'",
-      "lineItems": [{
-        "item": "string",
-        "amount": "string",
-        "notes": "string"
-      }],
-      "subtotal": "string"
-    }],
-    "contingency": { "percentage": "string", "amount": "string" },
-    "totalBudget": "string"
-  }
-}
+{ "type": "budget", "stage": 3, "data": {
+  "projectName": "string",
+  "currency": "string",
+  "categories": [{ "category": "string", "lineItems": [{ "item": "string", "amount": "string", "notes": "string" }], "subtotal": "string" }],
+  "contingency": { "percentage": "string", "amount": "string" },
+  "totalBudget": "string"
+}}
 
 #### resource-plan
-{
-  "type": "resource-plan",
-  "title": "Resource Plan — <Project Name>",
-  "stage": 3,
-  "data": {
-    "projectName": "string",
-    "roles": [{
-      "role": "string",
-      "description": "string",
-      "skills": ["string"],
-      "allocation": "string — e.g., '100%' or '50%'",
-      "duration": "string — e.g., 'Months 1-8'",
-      "source": "string — Internal | Contractor | Vendor",
-      "estimatedCost": "string"
-    }],
-    "totalHeadcount": "string",
-    "sourcingNotes": "string — any notes on hiring, onboarding, etc."
-  }
-}
+{ "type": "resource-plan", "stage": 3, "data": {
+  "projectName": "string",
+  "roles": [{ "role": "string", "description": "string", "skills": ["string"], "allocation": "string", "duration": "string", "source": "Internal | Contractor | Vendor", "estimatedCost": "string (if known)" }],
+  "totalHeadcount": "string",
+  "sourcingNotes": "string"
+}}`;
 
-### Stage 4 Artifact Schemas (Stakeholders & Governance)
+const STAGE_4_SCHEMAS = `### Stage 4 Schemas
 
 #### stakeholder-register
-{
-  "type": "stakeholder-register",
-  "title": "Stakeholder Register — <Project Name>",
-  "stage": 4,
-  "data": {
-    "projectName": "string",
-    "stakeholders": [{
-      "name": "string",
-      "role": "string",
-      "organization": "string",
-      "power": "string — High | Medium | Low",
-      "interest": "string — High | Medium | Low",
-      "classification": "string — Manage Closely | Keep Satisfied | Keep Informed | Monitor",
-      "attitude": "string — Supportive | Neutral | Resistant",
-      "engagementStrategy": "string"
-    }]
-  }
-}
+{ "type": "stakeholder-register", "stage": 4, "data": {
+  "projectName": "string",
+  "stakeholders": [{ "name": "string (role title if name unknown)", "role": "string", "organization": "string (if known)", "power": "High | Medium | Low", "interest": "High | Medium | Low", "classification": "Manage Closely | Keep Satisfied | Keep Informed | Monitor", "attitude": "Supportive | Neutral | Resistant", "engagementStrategy": "string" }]
+}}
 
 #### raci-matrix
-{
-  "type": "raci-matrix",
-  "title": "RACI Matrix — <Project Name>",
-  "stage": 4,
-  "data": {
-    "projectName": "string",
-    "roles": ["string — column headers (role names)"],
-    "items": [{
-      "deliverable": "string — from WBS",
-      "assignments": [{ "role": "string", "type": "string — R | A | C | I" }]
-    }]
-  }
-}
+{ "type": "raci-matrix", "stage": 4, "data": {
+  "projectName": "string",
+  "roles": ["string"],
+  "items": [{ "deliverable": "string (from WBS)", "assignments": [{ "role": "string", "type": "R | A | C | I" }] }]
+}}
 
 #### communication-plan
-{
-  "type": "communication-plan",
-  "title": "Communication Plan — <Project Name>",
-  "stage": 4,
-  "data": {
-    "projectName": "string",
-    "communications": [{
-      "audience": "string — stakeholder or group",
-      "information": "string — what they need to know",
-      "frequency": "string — e.g., 'Weekly', 'Monthly', 'As needed'",
-      "channel": "string — e.g., 'Email', 'Meeting', 'Slack', 'Report'",
-      "owner": "string — who sends/manages this communication"
-    }]
-  }
-}
+{ "type": "communication-plan", "stage": 4, "data": {
+  "projectName": "string",
+  "communications": [{ "audience": "string", "information": "string", "frequency": "string", "channel": "string", "owner": "string (role)" }]
+}}
 
 #### governance-structure
-{
-  "type": "governance-structure",
-  "title": "Governance Structure — <Project Name>",
-  "stage": 4,
-  "data": {
-    "projectName": "string",
-    "decisionAuthority": [{
-      "decisionType": "string — e.g., 'Scope change', 'Budget reallocation'",
-      "authority": "string — who can approve",
-      "threshold": "string — e.g., 'Changes > $10K require steering committee'"
-    }],
-    "escalationPath": [{
-      "level": "string — e.g., 'Level 1: Project Manager'",
-      "role": "string",
-      "timeframe": "string — e.g., 'Within 24 hours'"
-    }],
-    "meetings": [{
-      "name": "string — e.g., 'Steering Committee'",
-      "frequency": "string",
-      "attendees": ["string"],
-      "purpose": "string"
-    }]
-  }
-}
+{ "type": "governance-structure", "stage": 4, "data": {
+  "projectName": "string",
+  "decisionAuthority": [{ "decisionType": "string", "authority": "string", "threshold": "string" }],
+  "escalationPath": [{ "level": "string", "role": "string", "timeframe": "string" }],
+  "meetings": [{ "name": "string", "frequency": "string", "attendees": ["string"], "purpose": "string" }]
+}}`;
 
-### Stage 5 Artifact Schemas (Risk & Quality)
+const STAGE_5_SCHEMAS = `### Stage 5 Schemas
 
 #### risk-register
-{
-  "type": "risk-register",
-  "title": "Risk Register — <Project Name>",
-  "stage": 5,
-  "data": {
-    "projectName": "string",
-    "risks": [{
-      "id": "string — e.g., 'R-001'",
-      "category": "string — Technical | Resource | Schedule | Budget | Scope",
-      "description": "string",
-      "probability": "number — 1-5",
-      "impact": "number — 1-5",
-      "score": "number — probability x impact",
-      "rating": "string — Low | Medium | High | Critical",
-      "mitigation": "string",
-      "contingency": "string",
-      "owner": "string",
-      "status": "string — Open | Mitigating | Closed"
-    }]
-  }
-}
+{ "type": "risk-register", "stage": 5, "data": {
+  "projectName": "string",
+  "risks": [{ "id": "string (e.g. R-001)", "category": "Technical | Resource | Schedule | Budget | Scope", "description": "string", "probability": "number 1-5", "impact": "number 1-5", "score": "number (p×i)", "rating": "Low | Medium | High | Critical", "mitigation": "string", "contingency": "string (for High/Critical)", "owner": "string (role)", "status": "Open | Mitigating | Closed" }]
+}}
 
 #### quality-plan
-{
-  "type": "quality-plan",
-  "title": "Quality Management Plan — <Project Name>",
-  "stage": 5,
-  "data": {
-    "projectName": "string",
-    "qualityObjectives": ["string"],
-    "standards": [{
-      "deliverable": "string",
-      "qualityStandard": "string",
-      "acceptanceCriteria": "string",
-      "reviewProcess": "string",
-      "reviewer": "string"
-    }],
-    "qualityMetrics": [{
-      "metric": "string",
-      "target": "string",
-      "measurementMethod": "string",
-      "frequency": "string"
-    }],
-    "continuousImprovement": "string"
-  }
-}
+{ "type": "quality-plan", "stage": 5, "data": {
+  "projectName": "string",
+  "qualityObjectives": ["string"],
+  "standards": [{ "deliverable": "string", "qualityStandard": "string", "acceptanceCriteria": "string", "reviewProcess": "string", "reviewer": "string (role)" }],
+  "qualityMetrics": [{ "metric": "string", "target": "string", "measurementMethod": "string", "frequency": "string" }],
+  "continuousImprovement": "string"
+}}
 
 #### change-management-plan
-{
-  "type": "change-management-plan",
-  "title": "Change Management Plan — <Project Name>",
-  "stage": 5,
-  "data": {
-    "projectName": "string",
-    "changeProcess": {
-      "submissionMethod": "string — how to submit a change request",
-      "requiredInformation": ["string — what must be included"],
-      "impactAssessment": "string — how changes are evaluated"
-    },
-    "approvalThresholds": [{
-      "changeType": "string — e.g., 'Schedule change < 1 week'",
-      "approver": "string",
-      "process": "string"
-    }],
-    "changeLogFields": ["string — fields tracked for each change"]
-  }
-}
+{ "type": "change-management-plan", "stage": 5, "data": {
+  "projectName": "string",
+  "changeProcess": { "submissionMethod": "string", "requiredInformation": ["string"], "impactAssessment": "string" },
+  "approvalThresholds": [{ "changeType": "string", "approver": "string", "process": "string" }],
+  "changeLogFields": ["string"]
+}}`;
 
-### Stage 6 Artifact Schemas (Package & Kickoff)
+const STAGE_6_SCHEMAS = `### Stage 6 Schemas
 
 #### sow-pid
-{
-  "type": "sow-pid",
-  "title": "Statement of Work / Project Initiation Document — <Project Name>",
-  "stage": 6,
-  "data": {
-    "projectName": "string",
-    "version": "string",
-    "date": "string",
-    "executiveSummary": "string — pulls from charter",
-    "objectives": ["string — from charter/success criteria"],
-    "scopeSummary": { "inScope": ["string"], "outOfScope": ["string"] },
-    "wbsSummary": ["string — top-level deliverables from WBS"],
-    "scheduleSummary": { "startDate": "string", "endDate": "string", "keyMilestones": [{ "milestone": "string", "date": "string" }] },
-    "budgetSummary": { "totalBudget": "string", "contingency": "string" },
-    "teamSummary": ["string — key roles from resource plan"],
-    "governanceSummary": "string",
-    "topRisks": [{ "risk": "string", "rating": "string", "mitigation": "string" }],
-    "qualityApproach": "string",
-    "approvals": [{ "name": "string", "role": "string", "date": "string" }]
-  }
-}
+{ "type": "sow-pid", "stage": 6, "data": {
+  "projectName": "string",
+  "version": "string",
+  "date": "string",
+  "executiveSummary": "string",
+  "objectives": ["string"],
+  "scopeSummary": { "inScope": ["string"], "outOfScope": ["string"] },
+  "wbsSummary": ["string — top-level deliverables"],
+  "scheduleSummary": { "startDate": "string", "endDate": "string", "keyMilestones": [{ "milestone": "string", "date": "string" }] },
+  "budgetSummary": { "totalBudget": "string", "contingency": "string" },
+  "teamSummary": ["string — key roles"],
+  "governanceSummary": "string",
+  "topRisks": [{ "risk": "string", "rating": "string", "mitigation": "string" }],
+  "qualityApproach": "string",
+  "approvals": [{ "name": "string (or role)", "role": "string", "date": "string" }]
+}}
 
 #### kickoff-agenda
-{
-  "type": "kickoff-agenda",
-  "title": "Kickoff Meeting Agenda — <Project Name>",
-  "stage": 6,
-  "data": {
-    "projectName": "string",
-    "meetingDate": "string",
-    "meetingTime": "string",
-    "location": "string",
-    "attendees": [{ "name": "string", "role": "string" }],
-    "agendaItems": [{
-      "topic": "string",
-      "presenter": "string",
-      "duration": "string",
-      "description": "string"
-    }],
-    "preReadMaterials": ["string — documents to review before the meeting"],
-    "actionItems": ["string — post-meeting follow-ups"]
-  }
-}
+{ "type": "kickoff-agenda", "stage": 6, "data": {
+  "projectName": "string",
+  "meetingDate": "string (or TBD)",
+  "meetingTime": "string (or TBD)",
+  "location": "string (or TBD)",
+  "attendees": [{ "name": "string (or role)", "role": "string" }],
+  "agendaItems": [{ "topic": "string", "presenter": "string (role)", "duration": "string", "description": "string" }],
+  "preReadMaterials": ["string"],
+  "actionItems": ["string"]
+}}
 
 #### completeness-report
-{
-  "type": "completeness-report",
-  "title": "Documentation Completeness Report — <Project Name>",
-  "stage": 6,
-  "data": {
-    "projectName": "string",
-    "generatedDate": "string",
-    "artifacts": [{
-      "type": "string",
-      "title": "string",
-      "stage": "number",
-      "status": "string — Complete | Partial | Missing",
-      "notes": "string"
-    }],
-    "consistencyChecks": [{
-      "check": "string — what was verified",
-      "result": "string — Pass | Warning | Fail",
-      "notes": "string"
-    }],
-    "recommendations": ["string"],
-    "overallStatus": "string — Ready for Kickoff | Needs Review | Incomplete"
+{ "type": "completeness-report", "stage": 6, "data": {
+  "projectName": "string",
+  "generatedDate": "string",
+  "artifacts": [{ "type": "string", "title": "string", "stage": "number", "status": "Complete | Partial | Missing", "notes": "string" }],
+  "consistencyChecks": [{ "check": "string", "result": "Pass | Warning | Fail", "notes": "string" }],
+  "recommendations": ["string"],
+  "overallStatus": "Ready for Kickoff | Needs Review | Incomplete"
+}}`;
+
+const SCHEMAS_BY_STAGE: Record<StageNumber, string> = {
+  1: STAGE_1_SCHEMAS,
+  2: STAGE_2_SCHEMAS,
+  3: STAGE_3_SCHEMAS,
+  4: STAGE_4_SCHEMAS,
+  5: STAGE_5_SCHEMAS,
+  6: STAGE_6_SCHEMAS,
+};
+
+/**
+ * Returns artifact schemas for the current stage and the next stage only,
+ * reducing token usage significantly vs. sending all 15 schemas every time.
+ */
+export function getArtifactSchemas(currentStage: StageNumber): string {
+  const parts = [SCHEMA_HEADER, SCHEMAS_BY_STAGE[currentStage]];
+
+  // Include next stage schemas so the AI can anticipate what's coming
+  const nextStage = (currentStage + 1) as StageNumber;
+  if (nextStage <= 6 && SCHEMAS_BY_STAGE[nextStage]) {
+    parts.push(SCHEMAS_BY_STAGE[nextStage]);
   }
-}`;
+
+  return parts.join("\n\n");
+}

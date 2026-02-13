@@ -26,7 +26,7 @@ function RenderValue({ label, value }: { label: string; value: unknown }) {
         <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {formatLabel(label)}
         </dt>
-        <dd className="mt-1 text-sm">{value}</dd>
+        <dd className="mt-1 whitespace-pre-wrap break-words text-sm">{value}</dd>
       </div>
     );
   }
@@ -41,7 +41,7 @@ function RenderValue({ label, value }: { label: string; value: unknown }) {
         <dd className="mt-1">
           <ul className="list-inside list-disc space-y-1 text-sm">
             {value.map((item, i) => (
-              <li key={i}>{item}</li>
+              <li key={i} className="break-words">{item}</li>
             ))}
           </ul>
         </dd>
@@ -59,7 +59,7 @@ function RenderValue({ label, value }: { label: string; value: unknown }) {
         <dd>
           <div className="space-y-2">
             {value.map((item, i) => (
-              <div key={i} className="rounded-md border bg-muted/30 p-3">
+              <div key={i} className="rounded-md border bg-muted/30 p-3 break-words">
                 {typeof item === "object" && item !== null ? (
                   <dl>
                     {Object.entries(item).map(([k, v]) => (
@@ -84,7 +84,7 @@ function RenderValue({ label, value }: { label: string; value: unknown }) {
         <dt className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {formatLabel(label)}
         </dt>
-        <dd className="rounded-md border bg-muted/30 p-3">
+        <dd className="rounded-md border bg-muted/30 p-3 break-words">
           <dl>
             {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
               <RenderValue key={k} label={k} value={v} />
@@ -101,7 +101,7 @@ function RenderValue({ label, value }: { label: string; value: unknown }) {
       <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {formatLabel(label)}
       </dt>
-      <dd className="mt-1 text-sm">{String(value)}</dd>
+      <dd className="mt-1 whitespace-pre-wrap break-words text-sm">{String(value)}</dd>
     </div>
   );
 }
@@ -117,14 +117,12 @@ function formatLabel(key: string): string {
 export function ArtifactPreview({ artifact, onClose }: ArtifactPreviewProps) {
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[85vh] max-w-2xl p-0">
+      <DialogContent className="max-h-[85vh] max-w-4xl p-0">
         <DialogHeader className="border-b px-6 py-4">
-          <div className="flex items-center gap-3">
-            <DialogTitle className="text-lg">{artifact.title}</DialogTitle>
-            <Badge variant="outline" className="text-xs">
-              {artifact.status}
-            </Badge>
-          </div>
+          <DialogTitle className="pr-8 text-lg">{artifact.title}</DialogTitle>
+          <Badge variant="outline" className="mr-auto text-xs">
+            {artifact.status}
+          </Badge>
           <p className="text-xs text-muted-foreground">
             Stage {artifact.stage} &middot; {artifact.format.toUpperCase()} &middot; Last
             updated {artifact.updatedAt.toLocaleString()}

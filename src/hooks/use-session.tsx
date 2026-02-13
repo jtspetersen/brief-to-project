@@ -7,14 +7,15 @@ import {
   useState,
   useEffect,
   useRef,
+  useCallback,
   type ReactNode,
 } from "react";
 import type { SessionState, SessionAction } from "@/lib/types/session";
 import type { StageNumber } from "@/lib/types/stages";
 import type { Artifact } from "@/lib/types/artifacts";
 
-// Session expires after 2 hours (configurable)
-const SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+// Session expires after 2 hours of inactivity (resets on each message)
+const SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
 const initialState: SessionState = {
   currentStage: 1,
@@ -56,6 +57,8 @@ interface SessionContextValue {
   updateArtifact: (id: string, data: Partial<Artifact>) => void;
   updateContext: (context: Partial<SessionState["projectContext"]>) => void;
   resetSession: () => void;
+  /** Call this on user activity (e.g. sending a message) to reset the inactivity timer */
+  touchActivity: () => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -63,21 +66,21 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
   const [isExpired, setIsExpired] = useState(false);
-  // Set the real startedAt timestamp after mount to avoid hydration mismatch
-  const startedAtRef = useRef<number>(0);
+  // Tracks the last user activity time (resets on each message)
+  const lastActivityRef = useRef<number>(0);
 
   useEffect(() => {
-    startedAtRef.current = Date.now();
+    lastActivityRef.current = Date.now();
     dispatch({ type: "RESET" }); // Sets startedAt to new Date() on client
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
 
   // Check session timeout every 60 seconds
   useEffect(() => {
-    if (!startedAtRef.current) return;
+    if (!lastActivityRef.current) return;
 
     const checkTimeout = () => {
-      const elapsed = Date.now() - startedAtRef.current;
+      const elapsed = Date.now() - lastActivityRef.current;
       if (elapsed >= SESSION_TIMEOUT_MS) {
         setIsExpired(true);
       }
@@ -88,11 +91,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  const resetSession = () => {
-    startedAtRef.current = Date.now();
-    dispatch({ type: "RESET" });
-    setIsExpired(false);
-  };
+  // Reset inactivity timer on user activity
+  const touchActivity = useCallback(() => {
+    lastActivityRef.current = Date.now();
+  }, []);
+
+  // On timeout or manual reset: redirect to the showcase/home page
+  const resetSession = useCallback(() => {
+    window.location.href = "/";
+  }, []);
 
   const value: SessionContextValue = {
     state,
@@ -102,6 +109,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     updateArtifact: (id, data) => dispatch({ type: "UPDATE_ARTIFACT", id, data }),
     updateContext: (context) => dispatch({ type: "UPDATE_CONTEXT", context }),
     resetSession,
+    touchActivity,
   };
 
   return (

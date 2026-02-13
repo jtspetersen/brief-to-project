@@ -13,40 +13,29 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface StakeholderRegisterData {
-  projectName: string;
-  stakeholders: {
-    name: string;
-    role: string;
-    organization: string;
-    power: string;
-    interest: string;
-    classification: string;
-    attitude: string;
-    engagementStrategy: string;
-  }[];
-}
-
-export async function generateStakeholderRegister(data: StakeholderRegisterData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateStakeholderRegister(data: any): Promise<Buffer> {
   const doc = createDocument([
     title("Stakeholder Register"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Stakeholder Analysis"),
     simpleTable(
       ["Name", "Role", "Organization", "Power", "Interest", "Classification", "Attitude", "Engagement Strategy"],
-      data.stakeholders.map((s) => [
-        s.name,
-        s.role,
-        s.organization,
-        s.power,
-        s.interest,
-        s.classification,
-        s.attitude,
-        s.engagementStrategy,
+      a(data.stakeholders).map((stakeholder: any) => [
+        s(stakeholder?.name),
+        s(stakeholder?.role),
+        s(stakeholder?.organization),
+        s(stakeholder?.power),
+        s(stakeholder?.interest),
+        s(stakeholder?.classification),
+        s(stakeholder?.attitude),
+        s(stakeholder?.engagementStrategy),
       ]),
       [12, 12, 12, 8, 8, 14, 10, 24]
     ),

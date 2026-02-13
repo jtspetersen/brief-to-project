@@ -13,36 +13,27 @@ import {
   spacer,
   divider,
   bodyText,
+  s,
+  a,
 } from "./base-generator";
 
-interface SuccessCriteriaData {
-  projectName: string;
-  kpis: {
-    name: string;
-    description: string;
-    baseline: string;
-    target: string;
-    measurementMethod: string;
-    frequency: string;
-  }[];
-}
-
-export async function generateSuccessCriteria(data: SuccessCriteriaData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateSuccessCriteria(data: any): Promise<Buffer> {
   const doc = createDocument([
     title("Success Criteria & KPIs"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Key Performance Indicators"),
     simpleTable(
       ["KPI", "Description", "Baseline", "Target", "Measurement", "Frequency"],
-      data.kpis.map((k) => [
-        k.name,
-        k.description,
-        k.baseline,
-        k.target,
-        k.measurementMethod,
-        k.frequency,
+      a(data.kpis).map((k: any) => [
+        s(k?.name),
+        s(k?.description),
+        s(k?.baseline),
+        s(k?.target),
+        s(k?.measurementMethod),
+        s(k?.frequency),
       ]),
       [15, 25, 12, 12, 20, 16]
     ),

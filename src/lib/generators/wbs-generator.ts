@@ -17,55 +17,38 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface WbsData {
-  projectName: string;
-  methodology: string;
-  deliverables: {
-    id: string;
-    name: string;
-    workPackages: {
-      id: string;
-      name: string;
-      tasks: {
-        id: string;
-        name: string;
-        estimatedEffort: string;
-        estimatedDuration: string;
-        owner: string;
-      }[];
-    }[];
-  }[];
-}
-
-export async function generateWbs(data: WbsData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateWbs(data: any): Promise<Buffer> {
   const content: (Paragraph | Table)[] = [
     title("Work Breakdown Structure"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
-    labeledField("Methodology", data.methodology),
+    labeledField("Methodology", s(data.methodology)),
     spacer(),
   ];
 
   // Build the hierarchical WBS
-  for (const deliverable of data.deliverables) {
-    content.push(heading1(`${deliverable.id} ${deliverable.name}`));
+  for (const deliverable of a<any>(data.deliverables)) {
+    content.push(heading1(`${s(deliverable?.id)} ${s(deliverable?.name)}`));
 
-    for (const wp of deliverable.workPackages) {
-      content.push(heading2(`${wp.id} ${wp.name}`));
+    for (const wp of a<any>(deliverable?.workPackages)) {
+      content.push(heading2(`${s(wp?.id)} ${s(wp?.name)}`));
 
-      if (wp.tasks.length > 0) {
+      if (a<any>(wp?.tasks).length > 0) {
         content.push(
           simpleTable(
             ["ID", "Task", "Effort", "Duration", "Owner"],
-            wp.tasks.map((t) => [
-              t.id,
-              t.name,
-              t.estimatedEffort,
-              t.estimatedDuration,
-              t.owner,
+            a<any>(wp?.tasks).map((t: any) => [
+              s(t?.id),
+              s(t?.name),
+              s(t?.estimatedEffort),
+              s(t?.estimatedDuration),
+              s(t?.owner),
             ]),
             [10, 35, 15, 20, 20]
           )

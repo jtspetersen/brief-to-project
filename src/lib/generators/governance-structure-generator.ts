@@ -15,38 +15,21 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface GovernanceStructureData {
-  projectName: string;
-  decisionAuthority: {
-    decisionType: string;
-    authority: string;
-    threshold: string;
-  }[];
-  escalationPath: {
-    level: string;
-    role: string;
-    timeframe: string;
-  }[];
-  meetings: {
-    name: string;
-    frequency: string;
-    attendees: string[];
-    purpose: string;
-  }[];
-}
-
-export async function generateGovernanceStructure(data: GovernanceStructureData): Promise<Buffer> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateGovernanceStructure(data: any): Promise<Buffer> {
   const doc = createDocument([
     title("Governance Structure"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Decision Authority"),
     simpleTable(
       ["Decision Type", "Authority", "Threshold"],
-      data.decisionAuthority.map((d) => [d.decisionType, d.authority, d.threshold]),
+      a(data.decisionAuthority).map((d: any) => [s(d?.decisionType), s(d?.authority), s(d?.threshold)]),
       [30, 30, 40]
     ),
     spacer(),
@@ -54,7 +37,7 @@ export async function generateGovernanceStructure(data: GovernanceStructureData)
     heading1("Escalation Path"),
     simpleTable(
       ["Level", "Role", "Timeframe"],
-      data.escalationPath.map((e) => [e.level, e.role, e.timeframe]),
+      a(data.escalationPath).map((e: any) => [s(e?.level), s(e?.role), s(e?.timeframe)]),
       [30, 35, 35]
     ),
     spacer(),
@@ -62,7 +45,7 @@ export async function generateGovernanceStructure(data: GovernanceStructureData)
     heading1("Recurring Meetings"),
     simpleTable(
       ["Meeting", "Frequency", "Attendees", "Purpose"],
-      data.meetings.map((m) => [m.name, m.frequency, m.attendees.join(", "), m.purpose]),
+      a(data.meetings).map((m: any) => [s(m?.name), s(m?.frequency), a(m?.attendees).join(", "), s(m?.purpose)]),
       [20, 15, 30, 35]
     ),
 

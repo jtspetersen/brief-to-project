@@ -14,35 +14,30 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface RaciMatrixData {
-  projectName: string;
-  roles: string[];
-  items: {
-    deliverable: string;
-    assignments: { role: string; type: string }[];
-  }[];
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateRaciMatrix(data: any): Promise<Buffer> {
+  const roles = a(data.roles);
 
-export async function generateRaciMatrix(data: RaciMatrixData): Promise<Buffer> {
   // Build the matrix: first column is deliverable, remaining columns are roles
-  const headers = ["Deliverable", ...data.roles];
-  const colCount = headers.length;
-  const widths = [30, ...data.roles.map(() => Math.floor(70 / data.roles.length))];
+  const headers = ["Deliverable", ...roles.map((r: any) => s(r))];
+  const widths = [30, ...roles.map(() => Math.floor(70 / Math.max(roles.length, 1)))];
 
-  const rows = data.items.map((item) => {
-    const row = [item.deliverable];
-    for (const role of data.roles) {
-      const assignment = item.assignments.find((a) => a.role === role);
-      row.push(assignment?.type ?? "");
+  const rows = a(data.items).map((item: any) => {
+    const row = [s(item?.deliverable)];
+    for (const role of roles) {
+      const assignment = a<any>(item?.assignments).find((assign: any) => assign?.role === role);
+      row.push(s(assignment?.type));
     }
     return row;
   });
 
   const doc = createDocument([
     title("RACI Matrix"),
-    subtitle(data.projectName),
+    subtitle(s(data.projectName)),
     spacer(),
 
     heading1("Responsibility Assignment Matrix"),

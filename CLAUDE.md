@@ -60,6 +60,7 @@ Deployment architecture
 
 Test Project for Development
 When building and testing the AI conversation, use this sample project:
+
 Project Name: "ShopFlow UX Transformation"
 Type: Software / Digital — E-commerce platform UX/UI overhaul
 Description: Complete redesign of an existing e-commerce platform's user experience. Includes new brand identity implementation, new component library (design system), and simplification of the customer journey based on identified pain points (cart abandonment, checkout friction, poor mobile experience, inconsistent navigation).
@@ -68,6 +69,7 @@ Timeline: 8 months
 Team Size: 12–15 people (mix of designers, frontend devs, backend devs, QA, PM)
 Key Stakeholders: VP of Product, VP of Marketing, Head of Engineering, Customer Success Lead, external branding agency
 Methodology: Hybrid (Agile sprints for development, Waterfall gates for brand approval milestones)
+
 Use this project consistently when testing conversation flow, artifact generation, and document quality.
 Code Style Preferences
 

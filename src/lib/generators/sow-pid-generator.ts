@@ -18,68 +18,54 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface SowPidData {
-  projectName: string;
-  version: string;
-  date: string;
-  executiveSummary: string;
-  objectives: string[];
-  scopeSummary: { inScope: string[]; outOfScope: string[] };
-  wbsSummary: string[];
-  scheduleSummary: {
-    startDate: string;
-    endDate: string;
-    keyMilestones: { milestone: string; date: string }[];
-  };
-  budgetSummary: { totalBudget: string; contingency: string };
-  teamSummary: string[];
-  governanceSummary: string;
-  topRisks: { risk: string; rating: string; mitigation: string }[];
-  qualityApproach: string;
-  approvals: { name: string; role: string; date: string }[];
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateSowPid(data: any): Promise<Buffer> {
+  const scopeSummary = data.scopeSummary ?? {};
+  const scheduleSummary = data.scheduleSummary ?? {};
+  const budgetSummary = data.budgetSummary ?? {};
 
-export async function generateSowPid(data: SowPidData): Promise<Buffer> {
   const doc = createDocument([
     title("Statement of Work / Project Initiation Document"),
-    subtitle(data.projectName),
-    subtitle(`Version ${data.version} — ${data.date}`),
+    subtitle(s(data.projectName)),
+    subtitle(`Version ${s(data.version)} — ${s(data.date)}`),
     spacer(),
 
     // ── Executive Summary ──
     heading1("1. Executive Summary"),
-    bodyText(data.executiveSummary),
+    bodyText(s(data.executiveSummary)),
     spacer(),
 
     // ── Objectives ──
     heading1("2. Project Objectives"),
-    ...data.objectives.map((o) => bulletItem(o)),
+    ...a(data.objectives).map((o: any) => bulletItem(s(o))),
     spacer(),
 
     // ── Scope ──
     heading1("3. Scope Summary"),
     heading2("In Scope"),
-    ...data.scopeSummary.inScope.map((s) => bulletItem(s)),
+    ...a(scopeSummary.inScope).map((item: any) => bulletItem(s(item))),
     heading2("Out of Scope"),
-    ...data.scopeSummary.outOfScope.map((s) => bulletItem(s)),
+    ...a(scopeSummary.outOfScope).map((item: any) => bulletItem(s(item))),
     spacer(),
 
     // ── WBS ──
     heading1("4. Work Breakdown Summary"),
-    ...data.wbsSummary.map((w) => bulletItem(w)),
+    ...a(data.wbsSummary).map((w: any) => bulletItem(s(w))),
     spacer(),
 
     // ── Schedule ──
     heading1("5. Schedule Overview"),
-    labeledField("Start Date", data.scheduleSummary.startDate),
-    labeledField("End Date", data.scheduleSummary.endDate),
+    labeledField("Start Date", s(scheduleSummary.startDate)),
+    labeledField("End Date", s(scheduleSummary.endDate)),
     spacer(),
     heading2("Key Milestones"),
     simpleTable(
       ["Milestone", "Date"],
-      data.scheduleSummary.keyMilestones.map((m) => [m.milestone, m.date]),
+      a(scheduleSummary.keyMilestones).map((m: any) => [s(m?.milestone), s(m?.date)]),
       [60, 40]
     ),
     spacer(),
@@ -87,40 +73,40 @@ export async function generateSowPid(data: SowPidData): Promise<Buffer> {
     // ── Budget ──
     heading1("6. Budget Summary"),
     keyValueTable([
-      { key: "Total Budget", value: data.budgetSummary.totalBudget },
-      { key: "Contingency", value: data.budgetSummary.contingency },
+      { key: "Total Budget", value: s(budgetSummary.totalBudget) },
+      { key: "Contingency", value: s(budgetSummary.contingency) },
     ]),
     spacer(),
 
     // ── Team ──
     heading1("7. Team Summary"),
-    ...data.teamSummary.map((t) => bulletItem(t)),
+    ...a(data.teamSummary).map((t: any) => bulletItem(s(t))),
     spacer(),
 
     // ── Governance ──
     heading1("8. Governance"),
-    bodyText(data.governanceSummary),
+    bodyText(s(data.governanceSummary)),
     spacer(),
 
     // ── Top Risks ──
     heading1("9. Top Risks"),
     simpleTable(
       ["Risk", "Rating", "Mitigation"],
-      data.topRisks.map((r) => [r.risk, r.rating, r.mitigation]),
+      a(data.topRisks).map((r: any) => [s(r?.risk), s(r?.rating), s(r?.mitigation)]),
       [35, 15, 50]
     ),
     spacer(),
 
     // ── Quality ──
     heading1("10. Quality Approach"),
-    bodyText(data.qualityApproach),
+    bodyText(s(data.qualityApproach)),
     spacer(),
 
     // ── Approvals ──
     heading1("11. Approvals"),
     simpleTable(
       ["Name", "Role", "Signature", "Date"],
-      data.approvals.map((a) => [a.name, a.role, "", a.date]),
+      a(data.approvals).map((approval: any) => [s(approval?.name), s(approval?.role), "", s(approval?.date)]),
       [25, 25, 30, 20]
     ),
 

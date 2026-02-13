@@ -1,6 +1,7 @@
 import type { UIMessage } from "ai";
+import ReactMarkdown from "react-markdown";
 import { parseMessageForArtifacts } from "@/lib/utils/artifact-parser";
-import { Bot, User, FileCheck } from "lucide-react";
+import { IconUser, IconAiAdvisor, IconComplete } from "@/components/ui/icons";
 
 interface MessageBubbleProps {
   message: UIMessage;
@@ -39,21 +40,27 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             : "bg-muted text-muted-foreground"
         }`}
       >
-        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+        {isUser ? <IconUser size={16} /> : <IconAiAdvisor size={16} />}
       </div>
 
       {/* Message content */}
-      <div className="max-w-[80%] space-y-2">
+      <div className="min-w-0 max-w-[80%] space-y-2">
         {/* Text portion */}
         {hasText && (
           <div
-            className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+            className={`overflow-hidden rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
               isUser
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground"
             }`}
           >
-            <p className="whitespace-pre-wrap">{cleanText}</p>
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{cleanText}</p>
+            ) : (
+              <div className="prose-chat">
+                <ReactMarkdown>{cleanText}</ReactMarkdown>
+              </div>
+            )}
           </div>
         )}
 
@@ -64,7 +71,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 text-sm"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <FileCheck className="h-4 w-4" />
+              <IconComplete size={16} />
             </div>
             <div>
               <p className="font-medium">{artifact.title}</p>

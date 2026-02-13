@@ -18,75 +18,57 @@ import {
   simpleTable,
   spacer,
   divider,
+  s,
+  a,
 } from "./base-generator";
 
-interface CharterData {
-  projectName: string;
-  projectSponsor: string;
-  projectManager: string;
-  date: string;
-  executiveSummary: string;
-  businessCase: {
-    problemStatement: string;
-    strategicAlignment: string;
-    expectedBenefits: string[];
-    costBenefitSummary: string;
-  };
-  objectives: { objective: string; measure: string; target: string }[];
-  scope: {
-    inScope: string[];
-    outOfScope: string[];
-    assumptions: string[];
-    constraints: string[];
-  };
-  milestones: { milestone: string; targetDate: string }[];
-  budget: { estimated: string; contingency: string; fundingSource: string };
-  risks: { risk: string; impact: string; mitigation: string }[];
-  approvers: { name: string; role: string }[];
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function generateCharter(data: any): Promise<Buffer> {
+  const businessCase = data.businessCase ?? {};
+  const scope = data.scope ?? {};
+  const budget = data.budget ?? {};
 
-export async function generateCharter(data: CharterData): Promise<Buffer> {
   const doc = createDocument([
     // ── Title Block ──
     title("Project Charter"),
-    subtitle(data.projectName),
-    subtitle(`${data.date}`),
+    subtitle(s(data.projectName)),
+    subtitle(`${s(data.date)}`),
     spacer(),
 
     // ── Project Info ──
     keyValueTable([
-      { key: "Project Name", value: data.projectName },
-      { key: "Project Sponsor", value: data.projectSponsor },
-      { key: "Project Manager", value: data.projectManager },
-      { key: "Date", value: data.date },
+      { key: "Project Name", value: s(data.projectName) },
+      { key: "Project Sponsor", value: s(data.projectSponsor) },
+      { key: "Project Manager", value: s(data.projectManager) },
+      { key: "Date", value: s(data.date) },
     ]),
     spacer(),
 
     // ── Executive Summary ──
     heading1("Executive Summary"),
-    bodyText(data.executiveSummary),
+    bodyText(s(data.executiveSummary)),
     spacer(),
 
     // ── Business Case ──
     heading1("Business Case"),
     heading2("Problem Statement"),
-    bodyText(data.businessCase.problemStatement),
+    bodyText(s(businessCase.problemStatement)),
 
     heading2("Strategic Alignment"),
-    bodyText(data.businessCase.strategicAlignment),
+    bodyText(s(businessCase.strategicAlignment)),
 
     heading2("Expected Benefits"),
-    ...data.businessCase.expectedBenefits.map((b) => bulletItem(b)),
+    ...a(businessCase.expectedBenefits).map((b: any) => bulletItem(s(b))),
 
     heading2("Cost-Benefit Summary"),
-    bodyText(data.businessCase.costBenefitSummary),
+    bodyText(s(businessCase.costBenefitSummary)),
     spacer(),
 
     // ── Objectives ──
     heading1("Project Objectives"),
     simpleTable(
       ["Objective", "Measure", "Target"],
-      data.objectives.map((o) => [o.objective, o.measure, o.target]),
+      a(data.objectives).map((o: any) => [s(o?.objective), s(o?.measure), s(o?.target)]),
       [40, 30, 30]
     ),
     spacer(),
@@ -94,23 +76,23 @@ export async function generateCharter(data: CharterData): Promise<Buffer> {
     // ── Scope ──
     heading1("Scope"),
     heading2("In Scope"),
-    ...data.scope.inScope.map((item) => bulletItem(item)),
+    ...a(scope.inScope).map((item: any) => bulletItem(s(item))),
 
     heading2("Out of Scope"),
-    ...data.scope.outOfScope.map((item) => bulletItem(item)),
+    ...a(scope.outOfScope).map((item: any) => bulletItem(s(item))),
 
     heading2("Assumptions"),
-    ...data.scope.assumptions.map((item) => bulletItem(item)),
+    ...a(scope.assumptions).map((item: any) => bulletItem(s(item))),
 
     heading2("Constraints"),
-    ...data.scope.constraints.map((item) => bulletItem(item)),
+    ...a(scope.constraints).map((item: any) => bulletItem(s(item))),
     spacer(),
 
     // ── Milestones ──
     heading1("Key Milestones"),
     simpleTable(
       ["Milestone", "Target Date"],
-      data.milestones.map((m) => [m.milestone, m.targetDate]),
+      a(data.milestones).map((m: any) => [s(m?.milestone), s(m?.targetDate)]),
       [60, 40]
     ),
     spacer(),
@@ -118,9 +100,9 @@ export async function generateCharter(data: CharterData): Promise<Buffer> {
     // ── Budget ──
     heading1("Budget"),
     keyValueTable([
-      { key: "Estimated Budget", value: data.budget.estimated },
-      { key: "Contingency", value: data.budget.contingency },
-      { key: "Funding Source", value: data.budget.fundingSource },
+      { key: "Estimated Budget", value: s(budget.estimated) },
+      { key: "Contingency", value: s(budget.contingency) },
+      { key: "Funding Source", value: s(budget.fundingSource) },
     ]),
     spacer(),
 
@@ -128,7 +110,7 @@ export async function generateCharter(data: CharterData): Promise<Buffer> {
     heading1("Initial Risks"),
     simpleTable(
       ["Risk", "Impact", "Mitigation"],
-      data.risks.map((r) => [r.risk, r.impact, r.mitigation]),
+      a(data.risks).map((r: any) => [s(r?.risk), s(r?.impact), s(r?.mitigation)]),
       [35, 25, 40]
     ),
     spacer(),
@@ -137,7 +119,7 @@ export async function generateCharter(data: CharterData): Promise<Buffer> {
     heading1("Approvals"),
     simpleTable(
       ["Name", "Role", "Signature", "Date"],
-      data.approvers.map((a) => [a.name, a.role, "", ""]),
+      a(data.approvers).map((approver: any) => [s(approver?.name), s(approver?.role), "", ""]),
       [30, 30, 25, 15]
     ),
 
