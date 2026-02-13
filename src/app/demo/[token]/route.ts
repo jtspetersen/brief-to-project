@@ -22,29 +22,35 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token: tokenId } = await params;
-  const baseUrl = request.nextUrl.origin;
+
+  // Build redirect base from forwarded headers (nginx sets these)
+  // so redirects go to the public URL, not localhost:3000
+  const proto = request.headers.get("x-forwarded-proto") || "https";
+  const host = request.headers.get("host") || request.nextUrl.host;
+  const basePath = process.env.BASE_PATH || "";
+  const origin = `${proto}://${host}`;
 
   // Look up the token in the JSON file
   const token = await getToken(tokenId);
 
   if (!token) {
-    return NextResponse.redirect(new URL("/?error=invalid", baseUrl));
+    return NextResponse.redirect(new URL(`${basePath}/?error=invalid`, origin));
   }
 
   if (!isTokenValid(token)) {
     if (token.status === "expired" || new Date(token.expiresAt) <= new Date()) {
-      return NextResponse.redirect(new URL("/?error=expired", baseUrl));
+      return NextResponse.redirect(new URL(`${basePath}/?error=expired`, origin));
     }
     if (token.sessionsUsed >= token.maxSessions) {
-      return NextResponse.redirect(new URL("/?error=used", baseUrl));
+      return NextResponse.redirect(new URL(`${basePath}/?error=used`, origin));
     }
-    return NextResponse.redirect(new URL("/?error=invalid", baseUrl));
+    return NextResponse.redirect(new URL(`${basePath}/?error=invalid`, origin));
   }
 
   // Token is valid — set session cookie, increment usage, redirect to app
   await incrementSession(tokenId);
 
-  const response = NextResponse.redirect(new URL("/app", baseUrl));
+  const response = NextResponse.redirect(new URL(`${basePath}/app`, origin));
   const cookieOpts = getCookieOptions();
 
   response.cookies.set(DEMO_COOKIE_NAME, await createCookieValue(tokenId), cookieOpts);
