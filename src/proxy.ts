@@ -23,6 +23,12 @@ export async function proxy(request: NextRequest) {
   const cookieValue = request.cookies.get(DEMO_COOKIE_NAME)?.value;
   const tokenId = cookieValue ? await parseCookieValue(cookieValue) : null;
 
+  // Build redirect base from forwarded headers (nginx sets these)
+  const proto = request.headers.get("x-forwarded-proto") || "https";
+  const host = request.headers.get("host") || request.nextUrl.host;
+  const basePath = process.env.BASE_PATH || "";
+  const origin = `${proto}://${host}`;
+
   if (tokenId) {
     // Cookie signature is valid — now re-check the token store
     const token = await getToken(tokenId);
@@ -46,7 +52,7 @@ export async function proxy(request: NextRequest) {
 
     // Page routes: redirect to showcase with error banner
     const response = NextResponse.redirect(
-      new URL("/?error=revoked", request.url)
+      new URL(`${basePath}/?error=revoked`, origin)
     );
     response.cookies.delete(DEMO_COOKIE_NAME);
     return response;
@@ -63,7 +69,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Page routes (/app): redirect to showcase page
-  return NextResponse.redirect(new URL("/", request.url));
+  return NextResponse.redirect(new URL(`${basePath}/`, origin));
 }
 
 export const config = {
