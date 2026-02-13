@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Eye, Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ArtifactCardProps {
   artifact: Artifact;
@@ -65,8 +66,8 @@ export function ArtifactCard({ artifact, onPreview }: ArtifactCardProps) {
     setDownloading(format);
     try {
       await downloadArtifact(artifact, format);
-    } catch (err) {
-      console.error("Download error:", err);
+    } catch {
+      toast.error("Download failed. Please try again.");
     } finally {
       setDownloading(null);
     }

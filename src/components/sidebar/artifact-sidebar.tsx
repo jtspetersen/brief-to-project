@@ -8,6 +8,7 @@ import { ArtifactCard } from "@/components/sidebar/artifact-card";
 import { ArtifactPreview } from "@/components/sidebar/artifact-preview";
 import type { Artifact } from "@/lib/types/artifacts";
 import { FileText, FolderDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ArtifactSidebar() {
   const { state } = useSession();
@@ -42,15 +43,15 @@ export function ArtifactSidebar() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Bundle error:", err);
+    } catch {
+      toast.error("Bundle generation failed. Please try again.");
     } finally {
       setBundling(false);
     }
   };
 
   return (
-    <div className="flex h-full flex-col border-l">
+    <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center border-b px-6 py-4">
         <FileText className="mr-2 h-5 w-5 text-muted-foreground" />

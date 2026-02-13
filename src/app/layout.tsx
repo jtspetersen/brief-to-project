@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/hooks/use-session";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -39,6 +40,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SessionProvider>{children}</SessionProvider>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

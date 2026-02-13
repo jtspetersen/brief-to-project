@@ -197,7 +197,11 @@ export function ChatPanel() {
       {error && (
         <div className="mx-6 mb-2 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-2 text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          <p>Something went wrong. Please try again.</p>
+          <p>
+            {error.message?.includes("429") || error.message?.includes("rate")
+              ? "You've hit the usage limit. Please try again later."
+              : "Something went wrong. Please try again."}
+          </p>
         </div>
       )}
 
